@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,56 +16,6 @@ var dir string
 var port string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-
-const templateList = `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" 
-        rel="stylesheet" />
-    
-    <script src="https://code.jquery.com/jquery-1.11.0.min.js"> </script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"> </script>
-
-    <style>
-    body { font-family:Arial; font-size:12px }
-    .glyphicon { margin-right:5px; color:grey; font-size:14px }
-    #file_tree { line-height:18px }
-    .dir { color:green }
-    </style>
-    <title>Http File server: {{.Title}}</title>
-  </head>
-  <body>
-  <div class="container">
-    <div class="row">
-        <div class="col-md-6">
-        <h3>Listing files</h3>
-        </div>
-    </div>
-    <div class="row">
-    <div class="col-md-6">
-    <form action="" role="form" method="POST" class="form-inline" enctype="multipart/form-data">
-        <input type="hidden" value="upload" name="action" />
-        <div class="form-group">
-            <label for="ff">Upload a file</label>
-            <input type="file" class="form-control" id="ff" placeholder="Choose your file">
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary" >Upload</button>
-        </div>
-    </form>
-    </div>
-    </div>
-    <div class="row" style="margin-top:20px" id="file_tree">
-        <div class="col-md-12">
-        {{.Listing}}
-        </div>
-    </div>
-    </div>
-  </body>
-</html>
-`
 
 func main() {
 
@@ -86,6 +37,10 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Request: %s", r.FormValue("action"))
 	if r.FormValue("action") == "upload" {
 		log.Printf("Uploading file")
+
+		upload_file(w, r, r.URL.Path[1:])
+		http.Redirect(w, r, r.URL.Path, http.StatusFound)
+		return
 	}
 
 	if strings.HasSuffix(r.URL.Path, "/") {
@@ -149,4 +104,30 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, v)
 
 	//w.Write([]byte("this is a test inside dir handle"))
+}
+
+func upload_file(w http.ResponseWriter, r *http.Request, p string) {
+	if err := r.ParseMultipartForm(MAX_MEMORY); err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusForbidden)
+	}
+
+	for key, value := range r.MultipartForm.Value {
+		//fmt.Fprintf(w, "%s:%s", key, value)
+		log.Printf("%s:%s", key, value)
+	}
+
+	for _, fileHeaders := range r.MultipartForm.File {
+		for _, fileHeader := range fileHeaders {
+			file, _ := fileHeader.Open()
+			log.Println(fileHeader.Filename)
+			p := p + fileHeader.Filename
+			buf, _ := ioutil.ReadAll(file)
+			e := ioutil.WriteFile(p, buf, os.ModePerm)
+			if e != nil {
+				panic(e)
+			}
+		}
+	}
+
 }
