@@ -17,15 +17,23 @@ const templateList = `
     #file_tree { line-height:18px }
     .dir { color:green }
     </style>
-    <title>Http File server: {{.Title}}</title>
+    <title>{{ .Path }}</title>
   </head>
   <body>
   <div class="container">
     <div class="row">
         <div class="col-md-6">
-        <h3>Listing files</h3>
+        <h3>Mini WebFileManager</h3>
         </div>
     </div>
+    <div class="row">
+    <ol class="breadcrumb">
+        <li><a href="/">Root</a></li>
+        <li><a href="../">Parent</a></li>
+        <li><a href="{{ .Path }}">{{ .Path }}</a></li>
+    </ol>
+    </div>
+
     <div class="row">
     <div class="col-md-6">
     <form action="" role="form" method="POST" class="form-inline" enctype="multipart/form-data">
@@ -41,6 +49,9 @@ const templateList = `
     </div>
     </div>
     <div class="row" style="margin-top:20px" id="file_tree">
+
+
+
         <div class="col-md-12">
         {{.Listing}}
         </div>

@@ -59,7 +59,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	var d string = "."
 
-	log.Printf("len %d,, %s", len(r.URL.Path), dir)
+	//log.Printf("len %d,, %s", len(r.URL.Path), dir)
 	if len(r.URL.Path) == 1 {
 		// handle root dir
 		d = dir
@@ -99,6 +99,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	v := map[string]interface{}{
 		"Title":   d,
 		"Listing": template.HTML(out),
+		"Path":    r.URL.Path,
 	}
 
 	t.Execute(w, v)
@@ -125,7 +126,7 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 			buf, _ := ioutil.ReadAll(file)
 			e := ioutil.WriteFile(p, buf, os.ModePerm)
 			if e != nil {
-				panic(e)
+				http.Error(w, e.Error(), http.StatusForbidden)
 			}
 		}
 	}
