@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,6 +20,7 @@ var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
+const VERSION = "0.5"
 
 func main() {
 
@@ -47,6 +49,13 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Uploading file")
 		upload_file(w, r, r.URL.Path[1:])
 		http.Redirect(w, r, r.URL.Path, http.StatusFound)
+		return
+	}
+
+	if r.FormValue("action") == "delete" {
+		log.Printf("Deleting file %s", r.URL.Path)
+		delete_file(w, r, r.URL.Path[1:])
+		http.Redirect(w, r, filepath.Dir(r.URL.Path), http.StatusFound)
 		return
 	}
 
@@ -99,7 +108,8 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 			class = "dir glyphicon glyphicon-folder-open"
 			name += "/"
 		}
-		out += fmt.Sprintf("<a href='%s'><span class='%s'></span> %s</a><br />", name, class, name)
+		out += fmt.Sprintf("<li><a href='%s'><span class='%s'></span> %s</a>", name, class, name)
+		out += fmt.Sprintf(" <a href='%s?action=delete' class='pull-right delete'><span class='glyphicon glyphicon-trash'> </span></a></li>", name)
 	}
 
 	// get flash messages?
@@ -119,6 +129,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		"Path":    r.URL.Path,
 		"notroot": len(r.URL.Path) > 1,
 		"message": fm,
+		"version": VERSION,
 	}
 
 	t.Execute(w, v)
@@ -156,6 +167,22 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	session.AddFlash("File successfull uploaded", "message")
+	session.Save(r, w)
+
+}
+
+func delete_file(w http.ResponseWriter, r *http.Request, p string) {
+
+	err := os.Remove(p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	session, err := store.Get(r, "flash-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	session.AddFlash("File deleted "+p, "message")
 	session.Save(r, w)
 
 }

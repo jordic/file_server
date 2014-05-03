@@ -17,7 +17,22 @@ const templateList = `
     #file_tree { line-height:18px }
     .dir { color:green }
     .breadcrumb>li+li:before { content:" "; }
+    #file_list li { padding-bottom:8px; margin-bottom:8px; list-style: none; border-bottom: 1px solid #eaeaea; }
+    p.bg-success { padding:5px; color:green; }
     </style>
+    <script>
+    $(document).ready(function(){
+    $('.delete').click(function(){
+        if(confirm("Are you sure?"))
+            return true
+        return false
+    })
+    })
+    $('.bg-success').click(function(){
+        $(this).hide()
+    })
+
+    </script>
     <title>{{ .Path }}</title>
   </head>
   <body>
@@ -63,14 +78,14 @@ const templateList = `
 
 
 
-        <div class="col-md-12">
+        <div class="col-md-12" id="file_list">
         {{.Listing}}
         </div>
     </div>
     
 
     <div class="row" style="margin-top:200px; border-top:1px solid #eaeaea; padding-top:20px; font-size:10px">
-        <p><a href="http://github.com/jordic/file_serve">http://github.com/jordic/file_serve</a>
+        <p><a href="http://github.com/jordic/file_server">http://github.com/jordic/file_server</a> -- v.{{ .version }}
         </p>
     </div>
     </div>
