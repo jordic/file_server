@@ -1,20 +1,28 @@
-GOLANG HTTP FILE SERVER
-===========
+### HTTP FILE SERVER in GOlang
+
 
 I'm learning golang, and this is the first app I build, just for 
-get inside the code...
+get inside the code. Missed and ugly tool for sysadmins, once, up and runing, 
+shares current folder and subfolders via http, allowing uploading files, and 
+on future file operations ( delete, rename, edit )
 
-This is a tool when i'm in some servers, that every time i miss.. 
-Its simple, 
+Start from commandline:
 
-You fire, file_server and your current dir, starts being viewed by http, 
-also, you can upload files to there
+> file_server 
+>  -dir="directory" ( default to current . )
+>  -port=":8080"
+>  -log=true/false show console logs...
 
 
-@Todo
------
 
-- Add some type of flahs session, to notify user after an upload
-- Add the current path, and a direct acces to parent path
+### @Todo
+
++ Add some type of flahs session, to notify user after an upload
++ Add the current path, and a direct acces to parent path
 - Add file operations, like delete, move or uncompress zip files..
+- Refactor code, i'm building as learning golang.
+
+
+
+
 
