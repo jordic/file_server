@@ -24,6 +24,8 @@ Start from commandline:
 + Add the current path, and a direct acces to parent path
 - Add file operations, like ~~delete~~, move or uncompress zip files..
 - Refactor code, i'm building as learning golang.
+- Add options for not allowing uploads
+- Add options for not allowing file deletion.
 
 
 ##### Changelog
