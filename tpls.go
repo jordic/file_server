@@ -12,10 +12,11 @@ const templateList = `
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"> </script>
 
     <style>
-    body { font-family:Arial; font-size:12px }
+    body { font-family:Arial; font-size:14px }
     .glyphicon { margin-right:5px; color:grey; font-size:14px }
     #file_tree { line-height:18px }
     .dir { color:green }
+    .breadcrumb>li+li:before { content:" "; }
     </style>
     <title>{{ .Path }}</title>
   </head>
@@ -28,14 +29,24 @@ const templateList = `
     </div>
     <div class="row">
     <ol class="breadcrumb">
-        <li><a href="/">Root</a></li>
-        <li><a href="../">Parent</a></li>
-        <li><a href="{{ .Path }}">{{ .Path }}</a></li>
+        <li><a href="/"><span class="glyphicon glyphicon-home"> </span></a></li>
+        <li>{{ .Path }}</li>
+        {{if .notroot }}
+        <li><a href="../">..</a></li>
+        {{ end }}
     </ol>
     </div>
 
+    {{if .message }}
     <div class="row">
-    <div class="col-md-6">
+        <div class="col-md-12" role="main">
+            <p class="bg-success">{{ .message }}</p>
+        </div>
+    </div>
+    {{ end }}
+
+    <div class="row">
+    <div class="col-md-8">
     <form action="" role="form" method="POST" class="form-inline" enctype="multipart/form-data">
         <input type="hidden" value="upload" name="action" />
         <div class="form-group">
@@ -56,7 +67,14 @@ const templateList = `
         {{.Listing}}
         </div>
     </div>
+    
+
+    <div class="row" style="margin-top:200px; border-top:1px solid #eaeaea; padding-top:20px; font-size:10px">
+        <p><a href="http://github.com/jordic/file_serve">http://github.com/jordic/file_serve</a>
+        </p>
     </div>
+    </div>
+
   </body>
 </html>
 `

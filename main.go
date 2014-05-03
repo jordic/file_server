@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/gorilla/sessions"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,8 @@ import (
 
 var dir string
 var port string
+var logging bool
+var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
 
@@ -21,8 +24,13 @@ func main() {
 
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
+	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 
 	flag.Parse()
+
+	if logging == false {
+		log.SetOutput(ioutil.Discard)
+	}
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(handleReq))
@@ -34,19 +42,19 @@ func main() {
 func handleReq(w http.ResponseWriter, r *http.Request) {
 
 	//act := r.Values['action']
-	log.Printf("Request: %s", r.FormValue("action"))
+	//log.Printf("Request: %s", r.FormValue("action"))
 	if r.FormValue("action") == "upload" {
 		log.Printf("Uploading file")
-
 		upload_file(w, r, r.URL.Path[1:])
 		http.Redirect(w, r, r.URL.Path, http.StatusFound)
 		return
 	}
 
 	if strings.HasSuffix(r.URL.Path, "/") {
+		log.Printf("Index dir")
 		handleDir(w, r)
 	} else {
-		log.Printf("descargando archivo %s", path.Clean(dir+r.URL.Path))
+		log.Printf("downloading file %s", path.Clean(dir+r.URL.Path))
 		http.ServeFile(w, r, path.Clean(dir+r.URL.Path))
 		//http.ServeContent(w, r, r.URL.Path)
 		//w.Write([]byte("this is a test inside file handler"))
@@ -94,12 +102,23 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		out += fmt.Sprintf("<a href='%s'><span class='%s'></span> %s</a><br />", name, class, name)
 	}
 
-	t := template.Must(template.New("listing").Parse(templateList))
+	// get flash messages?
+	session, err := store.Get(r, "flash-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
+	fm := session.Flashes("message")
+	session.Save(r, w)
+	//fmt.Fprintf(w, "%v", fm[0])
+
+	t := template.Must(template.New("listing").Parse(templateList))
 	v := map[string]interface{}{
 		"Title":   d,
 		"Listing": template.HTML(out),
 		"Path":    r.URL.Path,
+		"notroot": len(r.URL.Path) > 1,
+		"message": fm,
 	}
 
 	t.Execute(w, v)
@@ -130,5 +149,13 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 			}
 		}
 	}
+
+	// flash message
+	session, err := store.Get(r, "flash-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	session.AddFlash("File successfull uploaded", "message")
+	session.Save(r, w)
 
 }
