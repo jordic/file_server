@@ -1,5 +1,7 @@
 ### HTTP FILE SERVER in GOlang
 
+![Screenshot](http://tempointeractiu.net/file_server/file_server.png)
+
 
 I'm learning golang, and this is the first app I build, just for 
 get inside the code. Missed and ugly tool for sysadmins, once, up and runing, 
