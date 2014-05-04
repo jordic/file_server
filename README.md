@@ -1,6 +1,6 @@
 ### HTTP FILE SERVER in GOlang
 
-![Screenshot](http://tempointeractiu.net/file_server/file_server.png)
+![Screenshot](http://tempointeractiu.net/file_server/screenshot.png)
 
 
 I'm learning golang, and this is the first app I build, just for 
