@@ -79,7 +79,12 @@ const templateList = `
 
 
         <div class="col-md-12" id="file_list">
+        {{if .notroot }}
+        <li><a href="../"><span class="dir glyphicon glyphicon-folder-open"></span>...</a></li>
+        {{ end }}
+        
         {{.Listing}}
+        
         </div>
     </div>
     

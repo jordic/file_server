@@ -20,9 +20,15 @@ var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.5"
+const VERSION = "0.51"
 
 func main() {
+
+	//fmt.Println(len(os.Args), os.Args)
+	if len(os.Args) > 1 && os.Args[1] == "-v" {
+		fmt.Println("Version " + VERSION)
+		os.Exit(0)
+	}
 
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
@@ -74,7 +80,7 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 
 func handleDir(w http.ResponseWriter, r *http.Request) {
 
-	var d string = "."
+	var d string = ""
 
 	//log.Printf("len %d,, %s", len(r.URL.Path), dir)
 	if len(r.URL.Path) == 1 {
@@ -83,13 +89,19 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		// @todo convert pahts to absolutes
-		d += r.URL.Path
+		if dir == "." {
+			d += r.URL.Path[1:]
+		} else {
+			d += dir + r.URL.Path[1:]
+		}
+		log.Printf("filename %s", d)
 	}
 
 	thedir, err := os.Open(d)
 	if err != nil {
 		// not a directory, handle a 404
-		http.Error(w, "Page not found", 404)
+		//http.Error(w, "Page not found %s", 404)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer thedir.Close()
