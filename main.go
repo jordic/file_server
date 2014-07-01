@@ -185,7 +185,7 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 
 func delete_file(w http.ResponseWriter, r *http.Request, p string) {
 
-	err := os.Remove(p)
+	err := os.Remove(strings.TrimRight(dir, "/") + "/" + strings.Trim(p, "/"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
