@@ -20,7 +20,7 @@ var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.51"
+const VERSION = "0.52"
 
 func main() {
 
@@ -42,7 +42,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(handleReq))
-	log.Printf("Listening.....")
+	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 
 }
@@ -61,7 +61,10 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("action") == "delete" {
 		log.Printf("Deleting file %s", r.URL.Path)
 		delete_file(w, r, r.URL.Path[1:])
-		http.Redirect(w, r, filepath.Dir(r.URL.Path), http.StatusFound)
+
+		fmt.Print(filepath.Dir(r.URL.Path))
+
+		http.Redirect(w, r, filepath.Dir(r.URL.Path)+"/", http.StatusFound)
 		return
 	}
 
@@ -163,10 +166,16 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 	for _, fileHeaders := range r.MultipartForm.File {
 		for _, fileHeader := range fileHeaders {
 			file, _ := fileHeader.Open()
-			log.Println(fileHeader.Filename)
-			p := p + fileHeader.Filename
+			//log.Println(fileHeader.Filename)
+			var ff string
+			if dir != "." {
+				ff = dir + p + fileHeader.Filename
+			} else {
+				ff = p + fileHeader.Filename
+			}
+
 			buf, _ := ioutil.ReadAll(file)
-			e := ioutil.WriteFile(p, buf, os.ModePerm)
+			e := ioutil.WriteFile(ff, buf, os.ModePerm)
 			if e != nil {
 				http.Error(w, e.Error(), http.StatusForbidden)
 			}
