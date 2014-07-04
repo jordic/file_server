@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/sessions"
@@ -12,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var dir string
@@ -21,6 +23,13 @@ var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
 const VERSION = "0.52"
+
+type File struct {
+	Name    string
+	Size    string
+	ModTime time.Time
+	IsDir   bool
+}
 
 func main() {
 
@@ -112,6 +121,31 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	finfo, err := thedir.Readdir(-1)
 	if err != nil {
 		return
+	}
+
+	// handle json format of dir...
+	if r.FormValue("format") == "json" {
+
+		var aout []*File
+
+		for _, fi := range finfo {
+			xf := &File{
+				fi.Name(),
+				fmt.Sprintf("%d", fi.Size()/1024),
+				fi.ModTime(),
+				fi.IsDir(),
+			}
+			aout = append(aout, xf)
+		}
+
+		xo, err := json.Marshal(aout)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(xo)
+		return
+
 	}
 
 	out := ""
