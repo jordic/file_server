@@ -262,11 +262,11 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
             var files = evt.target.files;
             var formData = new FormData( document.getElementById('upload_files') );
            
-            //formData.append("action", "upload")
-            //formData.append("is_ajax", "true")
             var xhr = new XMLHttpRequest();
             xhr.open('PUT', $scope.Path, true);
-            //xhr.setRequestHeader("Content-Type","multipart/form-data;")
+
+            
+            
             xhr.onload = function(e) {
                 //console.log(e)
                 document.getElementById('file_upload').removeEventListener('change', uploadFiles);
@@ -275,17 +275,20 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
              };
 
              xhr.onerror = function(e) {
-                console.log(e)
+                Flash_Message("bg-error", "Error uploading file")
              }
 
             xhr.upload.onprogress = function(e) {
-                console.log(e)
+                //console.log(e)
                 if (e.lengthComputable) {
-                    console.log( (e.loaded / e.total) * 100 )
+                    //console.log( (e.loaded / e.total) * 100 )
+                    $scope.flash.message = "Uploading... " + parseInt((e.loaded / e.total) * 100) + "%"
+                    $scope.$apply()
                 }
              }
 
              xhr.send(formData)
+             $scope.flash = { type:"bg-success", message: "Uploading file... " }
 
         };
 
@@ -297,14 +300,27 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 
 
     $scope.RenameFile = function(f) {
-        var old_path =  $scope.Path +  f
-        var res = prompt("Rename/Move File?", f)
+        var old_path = $scope.Path +  f
+        var res = prompt("Rename/Move File?", old_path)
         if(res ) {
-                
+            
+            if(res == old_path) return
 
+            $http.get("/", {params:{
+                "ajax": "true",
+                "action": "rename",
+                "file": old_path,
+                "new": res
 
-            Flash_Message("bg-success", "File "+ res + " renamed")
-            return
+            }}).then(function(d){
+                if(d.data == "ok") {
+                    Flash_Message("bg-success", "File renamed")
+                    //$location.path( $scope.Path )
+                    get_data()
+                } else {
+                    Flash_Message("bg-danger", d.data, 5000)
+                }
+            })
         } else {
             return
         }

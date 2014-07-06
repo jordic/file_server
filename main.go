@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
+	//"path/filepath"
 	"strings"
 	"time"
 )
@@ -23,7 +23,7 @@ var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.52"
+const VERSION = "0.9"
 
 type File struct {
 	Name    string
@@ -69,26 +69,6 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//act := r.Values['action']
-	//log.Printf("Request: %s", r.FormValue("action"))
-	if r.FormValue("action") == "upload" {
-		//log.Printf("Uploading file")
-		upload_file(w, r, r.URL.Path[1:])
-		// r.URL.Path[1:]
-		//http.Redirect(w, r, r.URL.Path, http.StatusFound)
-		return
-	}
-
-	if r.FormValue("action") == "delete" {
-		log.Printf("Deleting file %s", r.URL.Path)
-		delete_file(w, r, r.URL.Path[1:])
-
-		fmt.Print(filepath.Dir(r.URL.Path))
-
-		http.Redirect(w, r, filepath.Dir(r.URL.Path)+"/", http.StatusFound)
-		return
-	}
-
 	if strings.HasSuffix(r.URL.Path, "/") {
 		log.Printf("Index dir %s", r.URL.Path)
 		handleDir(w, r)
@@ -123,6 +103,29 @@ func AjaxActions(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Fprint(w, fmt.Sprintf("ok"))
+		return
+	}
+
+	// @todo make some test cases of trim renames...
+	if r.FormValue("action") == "rename" {
+		fo := strings.Trim(r.FormValue("file"), "/")
+		fn := strings.Trim(r.FormValue("new"), "/")
+		fo = strings.Trim(fo, "../")
+		fn = strings.Trim(fn, "../")
+		fmt.Printf("Old %s new %s", fo, fn)
+
+		if dir != "." {
+			fo = dir + fo
+			fn = dir + fn
+		}
+
+		err := os.Rename(fo, fn)
+		if err != nil {
+			fmt.Fprint(w, err)
+			return
+		}
+
+		fmt.Fprint(w, "ok")
 		return
 	}
 
@@ -262,86 +265,4 @@ func AjaxUpload(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, "ok")
 	return
-}
-
-func upload_file(w http.ResponseWriter, r *http.Request, p string) {
-	if err := r.ParseMultipartForm(MAX_MEMORY); err != nil {
-		//log.Println(err)
-		if r.FormValue("is_ajax") == "true" {
-			fmt.Fprint(w, err)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusForbidden)
-	}
-
-	for key, value := range r.MultipartForm.Value {
-		//fmt.Fprintf(w, "%s:%s", key, value)
-		log.Printf("%s:%s", key, value)
-	}
-
-	var e error
-	for _, fileHeaders := range r.MultipartForm.File {
-		for _, fileHeader := range fileHeaders {
-			file, _ := fileHeader.Open()
-			defer file.Close()
-			//log.Println(fileHeader.Filename)
-			var ff string
-			if dir != "." {
-				ff = dir + p + fileHeader.Filename
-			} else {
-				ff = p + fileHeader.Filename
-			}
-
-			dst, err := os.Create(ff)
-			defer dst.Close()
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			if _, err := io.Copy(dst, file); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-
-	if e != nil {
-		if r.FormValue("is_ajax") == "true" {
-			fmt.Fprint(w, e)
-			return
-		} else {
-			http.Error(w, e.Error(), http.StatusForbidden)
-			return
-		}
-	}
-
-	if r.FormValue("is_ajax") == "true" {
-		fmt.Fprint(w, "ok")
-		return
-	}
-
-	// flash message
-	session, err := store.Get(r, "flash-session")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	session.AddFlash("File successfull uploaded", "message")
-	session.Save(r, w)
-
-}
-
-func delete_file(w http.ResponseWriter, r *http.Request, p string) {
-
-	err := os.Remove(strings.TrimRight(dir, "/") + "/" + strings.Trim(p, "/"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	session, err := store.Get(r, "flash-session")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	session.AddFlash("File deleted "+p, "message")
-	session.Save(r, w)
-
 }
