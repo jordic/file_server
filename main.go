@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/sessions"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,7 +27,7 @@ const VERSION = "0.52"
 
 type File struct {
 	Name    string
-	Size    string
+	Size    int64
 	ModTime time.Time
 	IsDir   bool
 }
@@ -39,7 +40,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
+	flag.StringVar(&dir, "dir", "/Users/jordi/", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 
@@ -58,12 +59,23 @@ func main() {
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
 
+	if r.Method == "PUT" {
+		AjaxUpload(w, r)
+		return
+	}
+
+	if r.FormValue("ajax") == "true" {
+		AjaxActions(w, r)
+		return
+	}
+
 	//act := r.Values['action']
 	//log.Printf("Request: %s", r.FormValue("action"))
 	if r.FormValue("action") == "upload" {
-		log.Printf("Uploading file")
+		//log.Printf("Uploading file")
 		upload_file(w, r, r.URL.Path[1:])
-		http.Redirect(w, r, r.URL.Path, http.StatusFound)
+		// r.URL.Path[1:]
+		//http.Redirect(w, r, r.URL.Path, http.StatusFound)
 		return
 	}
 
@@ -78,7 +90,7 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if strings.HasSuffix(r.URL.Path, "/") {
-		log.Printf("Index dir")
+		log.Printf("Index dir %s", r.URL.Path)
 		handleDir(w, r)
 	} else {
 		log.Printf("downloading file %s", path.Clean(dir+r.URL.Path))
@@ -86,6 +98,32 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		//http.ServeContent(w, r, r.URL.Path)
 		//w.Write([]byte("this is a test inside file handler"))
 
+	}
+
+}
+
+func AjaxActions(w http.ResponseWriter, r *http.Request) {
+
+	if r.FormValue("action") == "delete" {
+		f := strings.Trim(r.FormValue("file"), "/")
+		err := os.Remove(dir + f)
+		if err != nil {
+			fmt.Fprint(w, fmt.Sprintf("Error %s", err))
+			return
+		}
+		fmt.Fprint(w, fmt.Sprintf("ok"))
+		return
+	}
+
+	if r.FormValue("action") == "create_folder" {
+		f := strings.Trim(r.FormValue("path"), "/") + "/" + r.FormValue("file")
+		err := os.Mkdir(dir+f, 0777)
+		if err != nil {
+			fmt.Fprint(w, fmt.Sprintf("Error %s", err))
+			return
+		}
+		fmt.Fprint(w, fmt.Sprintf("ok"))
+		return
 	}
 
 }
@@ -106,7 +144,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		} else {
 			d += dir + r.URL.Path[1:]
 		}
-		log.Printf("filename %s", d)
+		//log.Printf("filename %s", d)
 	}
 
 	thedir, err := os.Open(d)
@@ -131,7 +169,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		for _, fi := range finfo {
 			xf := &File{
 				fi.Name(),
-				fmt.Sprintf("%d", fi.Size()/1024),
+				fi.Size(),
 				fi.ModTime(),
 				fi.IsDir(),
 			}
@@ -171,7 +209,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 	//fmt.Fprintf(w, "%v", fm[0])
 
-	t := template.Must(template.New("listing").Parse(templateList))
+	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(templateList))
 	v := map[string]interface{}{
 		"Title":   d,
 		"Listing": template.HTML(out),
@@ -186,9 +224,53 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("this is a test inside dir handle"))
 }
 
+func AjaxUpload(w http.ResponseWriter, r *http.Request) {
+	reader, err := r.MultipartReader()
+	if err != nil {
+		fmt.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	pa := r.URL.Path[1:]
+
+	for {
+		part, err := reader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		var ff string
+		if dir != "." {
+			ff = dir + pa + part.FileName()
+		} else {
+			ff = pa + part.FileName()
+		}
+
+		dst, err := os.Create(ff)
+		defer dst.Close()
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if _, err := io.Copy(dst, part); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	fmt.Fprint(w, "ok")
+	return
+}
+
 func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 	if err := r.ParseMultipartForm(MAX_MEMORY); err != nil {
-		log.Println(err)
+		//log.Println(err)
+		if r.FormValue("is_ajax") == "true" {
+			fmt.Fprint(w, err)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusForbidden)
 	}
 
@@ -197,9 +279,11 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 		log.Printf("%s:%s", key, value)
 	}
 
+	var e error
 	for _, fileHeaders := range r.MultipartForm.File {
 		for _, fileHeader := range fileHeaders {
 			file, _ := fileHeader.Open()
+			defer file.Close()
 			//log.Println(fileHeader.Filename)
 			var ff string
 			if dir != "." {
@@ -208,12 +292,32 @@ func upload_file(w http.ResponseWriter, r *http.Request, p string) {
 				ff = p + fileHeader.Filename
 			}
 
-			buf, _ := ioutil.ReadAll(file)
-			e := ioutil.WriteFile(ff, buf, os.ModePerm)
-			if e != nil {
-				http.Error(w, e.Error(), http.StatusForbidden)
+			dst, err := os.Create(ff)
+			defer dst.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			if _, err := io.Copy(dst, file); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
 		}
+	}
+
+	if e != nil {
+		if r.FormValue("is_ajax") == "true" {
+			fmt.Fprint(w, e)
+			return
+		} else {
+			http.Error(w, e.Error(), http.StatusForbidden)
+			return
+		}
+	}
+
+	if r.FormValue("is_ajax") == "true" {
+		fmt.Fprint(w, "ok")
+		return
 	}
 
 	// flash message
