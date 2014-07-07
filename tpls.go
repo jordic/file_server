@@ -434,6 +434,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     <table class="table" ts-wrapper>
         <thead>
             <tr>
+                <td>&nbsp</td>
                 <td ts-criteria="IsDir" class="f">+</td>
                 <td ts-criteria="Name" ts-default="Ascending">Filename</td>
                 <td ts-criteria="Size|parseFloat">Size</td>
@@ -443,6 +444,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
         </thead>
         <tbody>
             <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat>
+                <td width="20"><input type="checkbox" name="checkboxs[]" value="{{ item }}" /></td>
                 <td width="20"><span class="glyphicon glyphicon-folder-open" ng-show="item.IsDir"></span>
                 <span ng-hide="item.IsDir" class="glyphicon glyphicon-file"></span></td>
                 <td><a href="{{ Path }}{{ item.Name }}" target="_self" ng-if="!item.IsDir">{{ item.Name }}</a><a href="{{ item.Name }}/" ng-if="item.IsDir" class="dir">{{ item.Name }}</span></td>
