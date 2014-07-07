@@ -94,6 +94,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                     else item.IsHidden = false
                 })
                 $scope.Rutas = GetRuta()
+                $scope.selected = 0
+
             }, function(error){
                 //alert('error')
                 //@todo... better blocking flash message for this case
@@ -184,6 +186,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     })
 
     $scope.DeleteFile = function(item) {
+
         var res = confirm("Are you sure?")
         if(res) {
             //console.log( $scope.Path + item )
@@ -338,8 +341,68 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     }
 
 
+    // Multiselect
+    $scope.selected = 0
+    var lastChecked = null
+    $scope.CheckboxToggle = function(item, evt) {
+        
+        var list = angular.element('input[type="checkbox"')        
+        if(evt.shiftKey) {
+            var start = list.index(evt.target)
+            var end = list.index(lastChecked)
+            list.slice( Math.min(start,end), Math.max(start,end)+ 1 ).attr('checked', lastChecked.checked)
+        }
+
+        lastChecked = evt.target
+
+        $scope.selected = 0
+        list.each(function(i, item){
+            if( item.checked == true ) {
+                $scope.selected++
+            }
+        })
+
+    }
+
+
+    $scope.DeleteSelected = function() {
+        var items = []
+        angular.element('input[type="checkbox"]').each(function(i, item){
+            //console.log(item)
+            if( item.checked == true ) {
+                items.push( $scope.Path + item.value )
+            }
+        })
+
+        $http.get("/", {params:{
+                "ajax": "true",
+                "action": "deleteList",
+                "files": JSON.stringify(items)
+        }}).then(function(d){
+                if(d.data == "ok") {
+                    Flash_Message("bg-success", "Files deleted")
+                    //$location.path( $scope.Path )
+                    get_data()
+                } else {
+                    Flash_Message("bg-danger", d.data, 5000)
+                }
+        })
+
+        //console.log(items)
+    }
+
+    
+    /*$scope.$watch('filtered.length', function(nv, ov){
+        console.log('ara')
+        angular.element('input[type="checkbox"]').attr('checked', false)
+        $scope.selected = 0
+    })*/
+
 })
     
+
+
+
 
 
 
@@ -401,7 +464,9 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
         
         <a class="btn btn-info btn-sm" target="_self" href="?format=zip" 
             tooltip-placement="top" tooltip="Download as Zip"><span class="glyphicon glyphicon-download-alt"> </span></a>
-        
+        &nbsp;&nbsp;&nbsp;
+        <button class="btn btn-danger btn-sm" ng-show="selected>0" ng-click="DeleteSelected()"
+            tooltip-placement="top" tooltip="Delete selected"><span class="glyphicon glyphicon-trash"> </span></button>
 
 
     </div>
@@ -444,7 +509,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
         </thead>
         <tbody>
             <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat>
-                <td width="20"><input type="checkbox" name="checkboxs[]" value="{{ item }}" /></td>
+                <td width="20"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
+                    ng-click="CheckboxToggle(this, $event)" /></td>
                 <td width="20"><span class="glyphicon glyphicon-folder-open" ng-show="item.IsDir"></span>
                 <span ng-hide="item.IsDir" class="glyphicon glyphicon-file"></span></td>
                 <td><a href="{{ Path }}{{ item.Name }}" target="_self" ng-if="!item.IsDir">{{ item.Name }}</a><a href="{{ item.Name }}/" ng-if="item.IsDir" class="dir">{{ item.Name }}</span></td>

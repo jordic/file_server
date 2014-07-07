@@ -123,6 +123,28 @@ func AjaxActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.FormValue("action") == "deleteList" {
+		var l = make([]string, 0)
+		list := r.FormValue("files")
+		err := json.Unmarshal([]byte(list), &l)
+		if err != nil {
+			fmt.Fprint(w, err)
+		}
+
+		//fmt.Printf("list %#v %#v", l, list)
+		for k := range l {
+			f := strings.Trim(l[k], "/")
+			fmt.Println(l[k])
+			err := os.Remove(dir + f)
+			if err != nil {
+				fmt.Fprint(w, fmt.Sprintf("Error %s", err))
+			}
+		}
+
+		fmt.Fprint(w, "ok")
+		return
+	}
+
 	if r.FormValue("action") == "create_folder" {
 		f := strings.Trim(r.FormValue("path"), "/") + "/" + r.FormValue("file")
 		err := os.Mkdir(dir+f, 0777)
