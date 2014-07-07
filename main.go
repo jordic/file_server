@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -60,6 +61,9 @@ func main() {
 	if dir == "." {
 		dir, _ = filepath.Abs(dir)
 	}
+
+	// @todo check dir exists
+
 	// normalize dir, ending with... /
 	if strings.HasSuffix(dir, "/") == false {
 		dir = dir + "/"
@@ -73,6 +77,15 @@ func main() {
 }
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
+
+	// get dir / app>template
+	//	get dir /.zip
+	//  get dir /.json
+
+	//fmt.Printf("ajax: %s\n", r.Header.Get("angular"))
+	//fmt.Printf("ajax: %s\n", r.Header.Get("Accept"))
+	//Is_Ajax := strings.Contains(r.Header.Get("Accept"), "application/json")
+	//fmt.Printf("is_ajax %s\n", )
 
 	if r.Method == "PUT" {
 		AjaxUpload(w, r)
@@ -158,43 +171,23 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		d += dir + r.URL.Path[1:]
 	}
 
-	thedir, err := os.Open(d)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer thedir.Close()
-
-	finfo, err := thedir.Readdir(-1)
-	if err != nil {
-		return
-	}
-
 	// handle json format of dir...
 	if r.FormValue("format") == "json" {
-
-		var aout []*File
-
-		for _, fi := range finfo {
-			xf := &File{
-				fi.Name(),
-				fi.Size(),
-				fi.ModTime(),
-				fi.IsDir(),
-			}
-			//fmt.Printf("%s, %d\n", fi.Name(), fi.Mode().IsRegular())
-			//@TODO test if file is symlink>> dir and mark it as a dir...
-			aout = append(aout, xf)
-		}
-
-		xo, err := json.Marshal(aout)
+		result := &DirJson{w, d}
+		err := result.Get()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
 		}
-		w.Write(xo)
 		return
+	}
 
+	if r.FormValue("format") == "zip" {
+		result := &DirZip{w, d}
+		err := result.Get()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
 	}
 
 	// If we dont receive json param... we are asking, for genric app ui...
@@ -246,4 +239,108 @@ func AjaxUpload(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, "ok")
 	return
+}
+
+// DirJson handle dir listings in json format
+type DirJson struct {
+	w io.Writer
+	d string
+}
+
+// Get Writes to stdout, json string...
+func (t *DirJson) Get() error {
+
+	//fmt.Print(t.d)
+	thedir, err := os.Open(t.d)
+	if err != nil {
+		return err
+	}
+	defer thedir.Close()
+
+	finfo, err := thedir.Readdir(-1)
+	if err != nil {
+		return err
+	}
+
+	var aout []*File
+
+	for _, fi := range finfo {
+		xf := &File{
+			fi.Name(),
+			fi.Size(),
+			fi.ModTime(),
+			fi.IsDir(),
+		}
+
+		// if is a symlink ... follow it to test if is a real dir...
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			//fmt.Printf("%s is a symlink", xf.Name)
+			fx, err := os.Readlink(t.d + fi.Name())
+			if err != nil {
+				continue
+			}
+			fxi, err := os.Stat(fx)
+			if err != nil {
+				continue
+			}
+			//fmt.Printf("%s is a dir %#v\n", t.d+fi.Name(), fxi.IsDir())
+			// If is a dir, populate object with it.
+			if fxi.IsDir() {
+				xf.IsDir = true
+			}
+
+		}
+
+		aout = append(aout, xf)
+	}
+
+	xo, err := json.Marshal(aout)
+	if err != nil {
+		return err
+	}
+	t.w.Write(xo)
+	return nil
+
+}
+
+type DirZip struct {
+	w http.ResponseWriter
+	d string
+}
+
+func (t *DirZip) Get() error {
+
+	zipFileName := fmt.Sprintf("%s.zip", filepath.Base(t.d))
+	t.w.Header().Set("Content-Type", "application/zip")
+	t.w.Header().Set("Content-Disposition", `attachment; filename="`+zipFileName+`"`)
+
+	zw := zip.NewWriter(t.w)
+	defer zw.Close()
+
+	filepath.Walk(t.d, func(path string, info os.FileInfo, err error) error {
+
+		if info.IsDir() {
+			return nil
+		}
+		zipPath := path[len(t.d):]
+		zipPath = strings.TrimLeft(strings.Replace(zipPath, `\`, "/", -1), `/`)
+		ze, err := zw.Create(zipPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Cannot create zip entry <%s>: %s\n", zipPath, err)
+			return err
+		}
+		file, err := os.Open(path)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Cannot open file <%s>: %s\n", path, err)
+			return err
+		}
+		defer file.Close()
+
+		io.Copy(ze, file)
+		return nil
+
+	})
+
+	return nil
+
 }

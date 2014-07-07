@@ -47,6 +47,8 @@ var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap']);
 
 fMgr.config(['$locationProvider', function($locationProvider){
     $locationProvider.html5Mode(true);
+}]).config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.headers.common["angular"] = "true";
 }]);
 
 fMgr.directive('tfocus', function($timeout){
@@ -397,7 +399,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
         <button type="button" class="btn btn-info btn-sm" type="file" ng-click="AddFiles()"
         tooltip-placement="top" tooltip="Upload Multiple Files"><span class="glyphicon glyphicon-plus"> </span> &nbsp; Upload</button>
         
-
+        <a class="btn btn-info btn-sm" target="_self" href="?format=zip" 
+            tooltip-placement="top" tooltip="Download as Zip"><span class="glyphicon glyphicon-download-alt"> </span></a>
         
 
 
@@ -445,9 +448,11 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 <td><a href="{{ Path }}{{ item.Name }}" target="_self" ng-if="!item.IsDir">{{ item.Name }}</a><a href="{{ item.Name }}/" ng-if="item.IsDir" class="dir">{{ item.Name }}</span></td>
                 <td width="100">{{ item.Size/1024|number:0 }}Kb</td>
                 <td width="140">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }}</td>
-                <td width="60">
-                    <span ng-click="RenameFile(item.Name)" class="glyphicon glyphicon-pencil delete"> </span>
-                    <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete"> </span>
+                <td width="90">
+                    <span ng-click="RenameFile(item.Name)" class="glyphicon glyphicon-pencil delete" tooltip-placement="top" tooltip="Rename/Move"> </span>
+                    <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete" tooltip-placement="top" tooltip="Delete"> </span>
+                    <a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
+                        class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>
                     
                 </td>
             </tr>
