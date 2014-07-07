@@ -1,27 +1,36 @@
-### HTTP FILE SERVER in GOlang
+### Html5 FileBrowser, Angular + Go
 
-v0.9. Big code refactor (UI) using angular and port of almost all methods to 
-api-json. 
-At the momment only compatible with Browsers with xmlhttprequest 2.0 (firefox,safari,chrome) not tested in ie10, v0.9 is in branch devel.
+![screenshot](builds/screenshot.gif)
+
+#### Features
+
+- Fast UI. Json + angular
+- Inline search
+- Upload mutliple files.
+- Big uploads. Tested with 1G files. ( Uploads are streamed to disk )
+- File delete / remove
+- Dir creation
+- Also can act as an api file json server... ( Improbed in future relases )
+    + PUT /dir file
+    + GET /dir &format=json
+    
+
+#### Install
+
+Donwload a binary build:
+
+[Osx 64bits](builds/file_server_osx)
+[Linux 64bits](builds/file_server_linux_amd64)
+
+Or compile it:
+
+go get github.com/jordic/fileserver
+go build or go install
 
 
---
-I'm learning golang, and this is the first app I build, just for 
-get inside the code. Missed and ugly tool for sysadmins, once, up and runing, 
-shares current folder and subfolders via http, allowing uploading files, and 
-on future file operations ( delete, rename, edit )
-
-Start from commandline:
-
-> file_server 
->  -dir="directory" ( default to current . )
->  -port=":8080"
->  -log=true/false show console logs...
-
-And browser your system or server at:
-
-http://localhost:8080
-
+#### Browser compatibility
+- Firefox, safari, Chrome.
+- Perpahs ie10 but not tested
 
 
 ##### @Todo
@@ -32,6 +41,8 @@ http://localhost:8080
 - Big code refactor to milestone 1.0.
     - PACKAGE filsistem json .. with common operations... 
     - Frontend
+- Improbe json api.
+- Add param for CORS handling
 - Add some kind of authentification
 - Add some kind of permisions...
 - Review log system.

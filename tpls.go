@@ -78,7 +78,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     function get_data() {
         $http.get($scope.Path + "?format=json")
             .then(function(res){
-                //console.log(res)
+                console.log(res)
                 if(res.data=="null")
                     $scope.Files = []
                 else
@@ -92,7 +92,14 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                     else item.IsHidden = false
                 })
                 $scope.Rutas = GetRuta()
-        })
+            }, function(error){
+                //alert('error')
+                //@todo... better blocking flash message for this case
+                Flash_Message("bg-danger", "Server disconnected!", 10000)
+                //$location.path( $scope.OldPath )
+                //$scope.Path = $scope.OldPath
+                
+            })
     }
 
     get_data()
@@ -166,6 +173,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     $scope.$on('$locationChangeSuccess', function(){
         //console.log('ara?')
         var newl = $location.path()
+        $scope.OldPath = $scope.Path
          if( $scope.Path != newl ) {
             $scope.Path = newl
             get_data()
@@ -275,7 +283,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
              };
 
              xhr.onerror = function(e) {
-                Flash_Message("bg-error", "Error uploading file")
+                Flash_Message("bg-danger", "Error uploading file")
              }
 
             xhr.upload.onprogress = function(e) {
@@ -452,9 +460,10 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 </div>
 
 <div class="container">
-    <div class="row" style="margin-top:200px; border-top:1px solid #eaeaea; padding-top:20px; font-size:10px">
+    <div class="row" style="margin-top:50px; border-top:1px solid #eaeaea; padding-top:20px; font-size:10px">
+        <div class="col-md-12">
         <p><a href="http://github.com/jordic/file_server">http://github.com/jordic/file_server</a> -- v.[% .version %]
-        </p>
+        </p></div>
     </div>
 </div>
     

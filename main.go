@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
-	//"path/filepath"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -32,6 +32,13 @@ type File struct {
 	IsDir   bool
 }
 
+/*
+@ TODO
+download zip folders
+https://bitbucket.org/kardianos/staticserv/src/5a536ebb8016d795187138ad99881533e14a59ef/main.go?at=default
+
+*/
+
 func main() {
 
 	//fmt.Println(len(os.Args), os.Args)
@@ -40,7 +47,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	flag.StringVar(&dir, "dir", "/Users/jordi/", "Specify a directory to server files from.")
+	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 
@@ -48,6 +55,14 @@ func main() {
 
 	if logging == false {
 		log.SetOutput(ioutil.Discard)
+	}
+	// If no path is passed to app, normalize to path formath
+	if dir == "." {
+		dir, _ = filepath.Abs(dir)
+	}
+	// normalize dir, ending with... /
+	if strings.HasSuffix(dir, "/") == false {
+		dir = dir + "/"
 	}
 
 	mux := http.NewServeMux()
@@ -112,7 +127,7 @@ func AjaxActions(w http.ResponseWriter, r *http.Request) {
 		fn := strings.Trim(r.FormValue("new"), "/")
 		fo = strings.Trim(fo, "../")
 		fn = strings.Trim(fn, "../")
-		fmt.Printf("Old %s new %s", fo, fn)
+		//fmt.Printf("Old %s new %s", fo, fn)
 
 		if dir != "." {
 			fo = dir + fo
@@ -139,21 +154,12 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Path) == 1 {
 		// handle root dir
 		d = dir
-
 	} else {
-		// @todo convert pahts to absolutes
-		if dir == "." {
-			d += r.URL.Path[1:]
-		} else {
-			d += dir + r.URL.Path[1:]
-		}
-		//log.Printf("filename %s", d)
+		d += dir + r.URL.Path[1:]
 	}
 
 	thedir, err := os.Open(d)
 	if err != nil {
-		// not a directory, handle a 404
-		//http.Error(w, "Page not found %s", 404)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -176,6 +182,8 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 				fi.ModTime(),
 				fi.IsDir(),
 			}
+			//fmt.Printf("%s, %d\n", fi.Name(), fi.Mode().IsRegular())
+			//@TODO test if file is symlink>> dir and mark it as a dir...
 			aout = append(aout, xf)
 		}
 
@@ -189,42 +197,15 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	out := ""
-	for _, fi := range finfo {
-		//log.Println(fi.Name())
-		class := "file glyphicon glyphicon-file"
-		name := fi.Name()
-		if fi.IsDir() {
-			class = "dir glyphicon glyphicon-folder-open"
-			name += "/"
-		}
-		out += fmt.Sprintf("<li><a href='%s'><span class='%s'></span> %s</a>", name, class, name)
-		out += fmt.Sprintf(" <a href='%s?action=delete' class='pull-right delete'><span class='glyphicon glyphicon-trash'> </span></a></li>", name)
-	}
-
-	// get flash messages?
-	session, err := store.Get(r, "flash-session")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	fm := session.Flashes("message")
-	session.Save(r, w)
-	//fmt.Fprintf(w, "%v", fm[0])
-
+	// If we dont receive json param... we are asking, for genric app ui...
 	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(templateList))
 	v := map[string]interface{}{
-		"Title":   d,
-		"Listing": template.HTML(out),
 		"Path":    r.URL.Path,
-		"notroot": len(r.URL.Path) > 1,
-		"message": fm,
 		"version": VERSION,
 	}
 
 	t.Execute(w, v)
 
-	//w.Write([]byte("this is a test inside dir handle"))
 }
 
 func AjaxUpload(w http.ResponseWriter, r *http.Request) {
