@@ -19,14 +19,14 @@
 
 Donwload a binary build:
 
-[Osx 64bits](builds/file_server_osx)
-[Linux 64bits](builds/file_server_linux_amd64)
+- [Osx 64bits](builds/file_server_osx)
+- [Linux 64bits](builds/file_server_linux_amd64)
 
 Or compile it:
-
+```go
 go get github.com/jordic/fileserver
 go build or go install
-
+```
 
 #### Browser compatibility
 - Firefox, safari, Chrome.
@@ -41,9 +41,10 @@ go build or go install
 - Big code refactor to milestone 1.0.
     - PACKAGE filsistem json .. with common operations... 
     - Frontend
-- Improbe json api.
-- Add param for CORS handling
+- Improbe filesystem json server.
+    - Add param for CORS handling
 - Add some kind of authentification
+- Add javascript dependencies to main file (Actually loading them async from cdn )
 - Add some kind of permisions...
 - Review log system.
 
