@@ -13,7 +13,7 @@
 - Also can act as an api file json server... ( Improbed in future relases )
     + PUT /dir file
     + GET /dir &format=json
-    
+- Download dirs as zip    
 
 #### Install
 
@@ -37,7 +37,7 @@ go build or go install
 
 + ~~Add some type of flahs session, to notify user after an upload~~
 + ~~Add the current path, and a direct acces to parent path~~
-- ~~Add file operations, like delete, move or~~ uncompress zip files..
++ ~~Add file operations, like delete, move or~~ ~~compress zip files..~~
 - Big code refactor to milestone 1.0.
     - PACKAGE filsistem json .. with common operations... 
     - Frontend

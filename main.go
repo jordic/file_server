@@ -24,7 +24,7 @@ var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.9"
+const VERSION = "0.91"
 
 type File struct {
 	Name    string
