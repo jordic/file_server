@@ -14,6 +14,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	//	"runtime/pprof"
+	_ "net/http/pprof"
 	"strings"
 	"time"
 )
@@ -22,6 +24,8 @@ var dir string
 var port string
 var logging bool
 var store = sessions.NewCookieStore([]byte("keysecret"))
+
+//var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
 const VERSION = "0.91"
@@ -51,8 +55,22 @@ func main() {
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
+	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
 	flag.Parse()
+
+	/*
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
+		if cpuprof != "" {
+			f, err := os.Create(cpuprof)
+			if err != nil {
+				log.Fatal(err)
+			}
+			pprof.StartCPUProfile(f)
+			defer pprof.StopCPUProfile()
+		}*/
 
 	if logging == false {
 		log.SetOutput(ioutil.Discard)
@@ -62,7 +80,9 @@ func main() {
 		dir, _ = filepath.Abs(dir)
 	}
 
-	// @todo check dir exists
+	if _, err := os.Stat(dir); err != nil {
+		log.Fatalf("Directory %s not exist", dir)
+	}
 
 	// normalize dir, ending with... /
 	if strings.HasSuffix(dir, "/") == false {

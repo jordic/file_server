@@ -21,8 +21,7 @@ const templateList = `
     #title { color:#2a8dc4; font-size:16px; }
 
     #file_list li { padding-bottom:8px; margin-bottom:8px; list-style: none; border-bottom: 1px solid #eaeaea; }
-    p.bg-success { padding:5px; color:green; }
-
+    
     /* table sort */
     th.tablesort-sortable {-webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -o-user-select: none; user-select: none; cursor: pointer; }
     table .tablesort-sortable:after{content:""; float:right; margin-top:7px; visibility:hidden; border-left:4px solid transparent; border-right:4px solid transparent; border-top:none; border-bottom:4px solid #000; }
@@ -38,7 +37,12 @@ const templateList = `
     thead td { font-weight:bold; }
     .dir, .delete { cursor:pointer; }
     .btn:focus {outline: none; }
-    #fmessage { position:absolute; z-index:50; width:30%;  top:0px; display:inline-block; right:15px; }
+    #fmessage { position: absolute; z-index: 50; top: 10px; display: block; right: 10px; box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.26);
+            background: #134166; min-height: 38px; min-width: 288px; padding: 8px 24px 0px; color: #666; border-radius: 2px;
+        opacity: 1; font-size: 14px; }
+
+    #fmessage.bg-danger { background-color:#f2dede; margin:0px; }
+    #fmessage.bg-success { background-color:#dff0d8; margin:0px; }
 
 
     </style>
@@ -283,6 +287,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
             xhr.onload = function(e) {
                 //console.log(e)
                 document.getElementById('file_upload').removeEventListener('change', uploadFiles);
+                document.getElementById("file_upload").value = "";
                 Flash_Message("bg-success", "File uploaded")
                 get_data()
              };
@@ -410,15 +415,20 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     <title>FileManager</title>
   </head>
   <body ng-controller="ListCtr">
+  
 
-  <div class="container" style="position:relative">
+  <div class="container"  style="position:relative">
     <div class="row">
         <div class="col-md-6">
         <h3 id="title">FileManager</h3>
         </div>
     </div>
-    <p ng-show="flash.message" class="{{ flash.type }} text-center" id="fmessage">{{ flash.message }}</p>
-    </div>
+    
+    <div  ng-show="flash.message" id="fmessage" class="{{ flash.type }}" >
+    <p>{{ flash.message }}</p>
+  </div>
+
+  </div>
 <!-- controller -->
 <div class="container">
 
