@@ -527,11 +527,25 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 <td width="100">{{ item.Size/1024|number:0 }}Kb</td>
                 <td width="140">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }}</td>
                 <td width="90">
-                    <span ng-click="RenameFile(item.Name)" class="glyphicon glyphicon-pencil delete" tooltip-placement="top" tooltip="Rename/Move"> </span>
+
+                    <div class="btn-group" dropdown>
+                        <button type="button" class="btn dropdown-toggle">
+                            <span class="glyphicon glyphicon-cog"> </span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a ng-click="RenameFile(item.Name)" href="#">Rename</a></li>
+                            <li><a  ng-click="DeleteFile(item.Name)" href="#">Delete</a></li>
+                            <li class="divider"></li>
+                            <li ng-if="item.IsDir"><a href="{{ item.Name }}/?format=zip">Donwload as Zip</a></li>
+                        </ul>
+
+                    </div>
+
+                    <!--<span ng-click="RenameFile(item.Name)" class="glyphicon glyphicon-pencil delete" tooltip-placement="top" tooltip="Rename/Move"> </span>
                     <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete" tooltip-placement="top" tooltip="Delete"> </span>
                     <a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
                         class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>
-                    
+                    -->
                 </td>
             </tr>
         </tbody>
