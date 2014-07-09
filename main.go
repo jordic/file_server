@@ -28,7 +28,7 @@ var store = sessions.NewCookieStore([]byte("keysecret"))
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.91"
+const VERSION = "0.91a"
 
 type File struct {
 	Name    string
@@ -41,7 +41,6 @@ type File struct {
 @ TODO
 download zip folders
 https://bitbucket.org/kardianos/staticserv/src/5a536ebb8016d795187138ad99881533e14a59ef/main.go?at=default
-
 */
 
 func main() {
@@ -112,6 +111,11 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == "POST" {
+		SaveFile(w, r)
+		return
+	}
+
 	if r.FormValue("ajax") == "true" {
 		AjaxActions(w, r)
 		return
@@ -130,7 +134,45 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func SaveFile(w http.ResponseWriter, r *http.Request) {
+
+	decoder := json.NewDecoder(r.Body)
+	var t map[string]string
+	err := decoder.Decode(&t)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	//fmt.Printf("%#v", t)
+	//fmt.Print(t["file"])
+	f := strings.Trim(t["file"], "/")
+	data := []byte(t["content"])
+	err = ioutil.WriteFile(dir+f, data, 0644)
+	if err != nil {
+		fmt.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, "ok")
+	return
+
+}
+
 func AjaxActions(w http.ResponseWriter, r *http.Request) {
+
+	if r.FormValue("action") == "save" {
+		f := strings.Trim(r.FormValue("file"), "/")
+		data := []byte(r.FormValue("content"))
+
+		err := ioutil.WriteFile(dir+f, data, 0644)
+		if err != nil {
+			fmt.Print(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprint(w, "ok")
+		return
+	}
 
 	if r.FormValue("action") == "delete" {
 		f := strings.Trim(r.FormValue("file"), "/")
@@ -386,3 +428,18 @@ func (t *DirZip) Get() error {
 	return nil
 
 }
+
+/*
+// commands
+supervisorctl restart xxxx
+service nginx restart
+service mysql restart
+mv $1 $2
+tar xvfz name.tar.gz asdf/
+git pull origin master
+git push origin master
+git commit -am "message"
+bin/sqldumpr -xxxx
+
+
+*/

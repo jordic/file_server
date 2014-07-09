@@ -5,9 +5,23 @@ const templateList = `
 <html lang="en" ng-app="fMgr">
   <head>
     <meta charset="utf-8">
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/codemirror/4.3.0/codemirror.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/codemirror/4.3.0/theme/monokai.css">
+
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" 
         rel="stylesheet" />
-    
+    <!--
+    <script src="//cdn.jsdelivr.net/g/codemirror"></script>
+    -->
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/codemirror.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/addon/selection/active-line.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/keymap/sublime.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/addon/display/rulers.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/mode/css/css.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/mode/javascript/javascript.js"></script>
+    <script src="//cdn.jsdelivr.net/codemirror/4.3.0/mode/markdown/markdown.js"></script>
+
     <script src="//code.jquery.com/jquery-1.11.0.min.js"> </script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"> </script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
@@ -45,9 +59,17 @@ const templateList = `
     #fmessage.bg-success { background-color:#dff0d8; margin:0px; }
 
 
+    #editor { min-height:400px; height:80%; }
+    .mtop { margin-top:15px; }
+
+    .CodeMirror { font-family: 'Menlo', 'Iconsolata', 'Monaco', monospace; 
+        font-size:12px;  height: 600px; line-height:16px; 
+        border:1px solid #eaeaea;  }
+
+
     </style>
 <script>
-var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap']);
+var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap', 'ui.codemirror']);
 
 fMgr.config(['$locationProvider', function($locationProvider){
     $locationProvider.html5Mode(true);
@@ -79,7 +101,7 @@ fMgr.directive('tfocus', function($timeout){
 fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window, $timeout){
 
     $scope.Path = "[% .Path %]"
-    
+    $scope.view = 'main'
     
     function get_data() {
         $http.get($scope.Path + "?format=json")
@@ -108,6 +130,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 //$scope.Path = $scope.OldPath
                 
             })
+        $scope.view = 'main'
     }
 
     get_data()
@@ -345,6 +368,71 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
         
     }
 
+    // Editor
+    $scope.editorOptions = {
+        lineWrapping : true,
+        lineNumbers: true,
+        keyMap: 'sublime',
+        //theme: 'monokai'
+    };
+
+    $scope.EditFile = function(item) {
+        $scope.currentEditedFile = $scope.Path + item
+        var file = $scope.Path + item
+
+        $http.get( file, {}).then(function(d){
+            //console.log(d)
+            $scope.EditorCurrentContent = d.data
+            $scope.EditorOldContent = $scope.EditorCurrentContent
+            $scope.EditorRefresh = true
+            $scope.view = 'edit'
+            $scope.$apply()
+            $scope.EditorInstance.refresh()
+
+        })
+        
+    }
+
+    $scope.codemirrorLoaded = function(_editor){
+        // Editor part
+        $scope.EditorInstance = _editor;
+    };
+
+
+    $scope.ToView = function(view) {
+
+        if( $scope.EditorOldContent != $scope.EditorCurrentContent ) {
+            var res = confirm("Loose changes?")
+            if(!res) {
+                return
+            }
+        }
+
+        $scope.view = view
+        $scope.EditorRefresh = false
+    }
+
+    $scope.SaveFile = function(exit) {
+        $http.post("/", {
+            //"ajax": "true",
+            'file': $scope.currentEditedFile,
+            'content': $scope.EditorCurrentContent
+            //'action': 'save'
+        }).then(function(d){
+            if(d.data == "ok") {
+                Flash_Message("bg-success", "File saved!")
+                $scope.EditorOldContent = $scope.EditorCurrentContent
+                if(exit==true) {
+                    $scope.ToView('main')
+                }
+            } else {
+                Flash_Message("bg-danger", "Error Saving File")
+            }
+        })
+    }
+
+
+
 
     // Multiselect
     $scope.selected = 0
@@ -395,6 +483,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 
         //console.log(items)
     }
+
+
 
     
     /*$scope.$watch('filtered.length', function(nv, ov){
@@ -447,7 +537,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 
 
 
-<div class="row">
+<div class="row" ng-show="view=='main'">
 <form id="upload_files" style="display:none" enctype="multipart/form-data">
 <input type="file" id="file_upload" name="files" multiple style="display:none" >
 </form>
@@ -504,7 +594,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 </div>
 
 
-<div class="row list" style="margin-top:15px">
+<div class="row list" style="margin-top:15px" ng-show="view=='main'">
 <div class="col-md-12">
     <table class="table" ts-wrapper>
         <thead>
@@ -528,24 +618,25 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 <td width="140">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }}</td>
                 <td width="90">
 
+                
+                    
+                    <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete" tooltip-placement="top" tooltip="Delete"> </span>
+                    <a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
+                        class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>
+                    
                     <div class="btn-group" dropdown>
-                        <button type="button" class="btn dropdown-toggle">
+                        <a href class="dropdown-toggle">
                             <span class="glyphicon glyphicon-cog"> </span>
-                        </button>
+                        </a>
                         <ul class="dropdown-menu" role="menu">
+                            <li ng-if="!item.IsDir"><a ng-click="EditFile(item.Name)" href="#">Edit</a></li>
                             <li><a ng-click="RenameFile(item.Name)" href="#">Rename</a></li>
-                            <li><a  ng-click="DeleteFile(item.Name)" href="#">Delete</a></li>
-                            <li class="divider"></li>
-                            <li ng-if="item.IsDir"><a href="{{ item.Name }}/?format=zip">Donwload as Zip</a></li>
+                            <li ng-if="item.IsDir"><a href="{{ item.Name }}/?format=zip" target="_self">Donwload as Zip</a></li>
                         </ul>
 
                     </div>
 
-                    <!--<span ng-click="RenameFile(item.Name)" class="glyphicon glyphicon-pencil delete" tooltip-placement="top" tooltip="Rename/Move"> </span>
-                    <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete" tooltip-placement="top" tooltip="Delete"> </span>
-                    <a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
-                        class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>
-                    -->
+                    
                 </td>
             </tr>
         </tbody>
@@ -555,6 +646,35 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 </div>
 
 </div>
+
+
+<div ng-show="view=='edit'" class="container">
+
+<div class="row">
+    <form role="form">
+    <div class="col-md-6">
+        <h4>Editing {{ currentEditedFile }}</h4>
+    </div>
+    <div class="col-md-6 pull-right text-right">
+        <button type="button" class="btn btn-info btn-sm" ng-click="ToView('main')"><span class="glyphicon glyphicon-arrow-left"> </span> &nbsp; Back</button>
+        <button type="button" class="btn btn-info btn-sm" ng-click="SaveFile()"><span class="glyphicon glyphicon-floppy-disk"> </span> &nbsp; Save</button>
+        
+    </div>
+    </form>
+</div>
+
+<div class="row" class="mtop" style="margin-top:20px">
+    <div class="col-md-12">
+        <textarea id="editor" ui-codemirror="{onLoad:codemirrorLoaded}"
+            ui-codemirror-opts="editorOptions"
+            ng-model="EditorCurrentContent"
+            ui-refresh='EditorRefresh'>
+        </textarea>
+    </div>
+</div>
+
+</div>
+
 
 <div class="container">
     <div class="row" style="margin-top:50px; border-top:1px solid #eaeaea; padding-top:20px; font-size:10px">
@@ -747,6 +867,133 @@ tableSortModule.filter( 'parseFloat', function(){
 } );
 
 
+'use strict';
+
+/**
+ * Binds a CodeMirror widget to a <textarea> element.
+ */
+angular.module('ui.codemirror', [])
+  .constant('uiCodemirrorConfig', {})
+  .directive('uiCodemirror', ['uiCodemirrorConfig', function (uiCodemirrorConfig) {
+
+    return {
+      restrict: 'EA',
+      require: '?ngModel',
+      priority: 1,
+      compile: function compile() {
+
+        // Require CodeMirror
+        if (angular.isUndefined(window.CodeMirror)) {
+          throw new Error('ui-codemirror need CodeMirror to work... (o rly?)');
+        }
+
+        return function postLink(scope, iElement, iAttrs, ngModel) {
+
+
+          var options, opts, codeMirror, value;
+
+          value = iElement.text();
+
+          if (iElement[0].tagName === 'TEXTAREA') {
+            // Might bug but still ...
+            codeMirror = window.CodeMirror.fromTextArea(iElement[0], {
+              value: value
+            });
+          } else {
+            iElement.html('');
+            codeMirror = new window.CodeMirror(function(cm_el) {
+              iElement.append(cm_el);
+            }, {
+              value: value
+            });
+          }
+
+          options = uiCodemirrorConfig.codemirror || {};
+          opts = angular.extend({}, options, scope.$eval(iAttrs.uiCodemirror), scope.$eval(iAttrs.uiCodemirrorOpts));
+
+          function updateOptions(newValues) {
+            for (var key in newValues) {
+              if (newValues.hasOwnProperty(key)) {
+                codeMirror.setOption(key, newValues[key]);
+              }
+            }
+          }
+
+          updateOptions(opts);
+
+          if (iAttrs.uiCodemirror) {
+            scope.$watch(iAttrs.uiCodemirror, updateOptions, true);
+          }
+
+
+          if (ngModel) {
+            // CodeMirror expects a string, so make sure it gets one.
+            // This does not change the model.
+            ngModel.$formatters.push(function (value) {
+              if (angular.isUndefined(value) || value === null) {
+                return '';
+              } else if (angular.isObject(value) || angular.isArray(value)) {
+                throw new Error('ui-codemirror cannot use an object or an array as a model');
+              }
+              return value;
+            });
+
+
+            // Override the ngModelController $render method, which is what gets called when the model is updated.
+            // This takes care of the synchronizing the codeMirror element with the underlying model, in the case that it is changed by something else.
+            ngModel.$render = function () {
+              //Code mirror expects a string so make sure it gets one
+              //Although the formatter have already done this, it can be possible that another formatter returns undefined (for example the required directive)
+              var safeViewValue = ngModel.$viewValue || '';
+              codeMirror.setValue(safeViewValue);
+            };
+
+
+            // Keep the ngModel in sync with changes from CodeMirror
+            codeMirror.on('change', function (instance) {
+              var newValue = instance.getValue();
+              if (newValue !== ngModel.$viewValue) {
+                // Changes to the model from a callback need to be wrapped in $apply or angular will not notice them
+                scope.$apply(function() {
+                  ngModel.$setViewValue(newValue);
+                });
+              }
+            });
+          }
+
+
+          // Watch ui-refresh and refresh the directive
+          if (iAttrs.uiRefresh) {
+            scope.$watch(iAttrs.uiRefresh, function (newVal, oldVal) {
+              // Skip the initial watch firing
+              if (newVal !== oldVal) {
+                codeMirror.refresh();
+              }
+            });
+          }
+
+
+          // Allow access to the CodeMirror instance through a broadcasted event
+          // eg: $broadcast('CodeMirror', function(cm){...});
+          scope.$on('CodeMirror', function(event, callback) {
+            if (angular.isFunction(callback)) {
+              callback(codeMirror);
+            } else {
+              throw new Error('the CodeMirror event requires a callback function');
+            }
+          });
+
+
+          // onLoad callback
+          if (angular.isFunction(opts.onLoad)) {
+            opts.onLoad(codeMirror);
+          }
+
+        };
+      }
+    };
+  }]);
+
 
 
 
@@ -755,6 +1002,9 @@ tableSortModule.filter( 'parseFloat', function(){
 
 
 </script>
+
+
+
 
 </html>
 `
