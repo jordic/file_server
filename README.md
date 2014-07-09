@@ -8,8 +8,9 @@
 - Inline search
 - Upload mutliple files.
 - Big uploads. Tested with 1G files. ( Uploads are streamed to disk )
-- File delete / remove
+- File delete / remove / copy / compress
 - Dir creation
+- File editor with Codemirror
 - Also can act as an api file json server... ( Improbed in future relases )
     + PUT /dir file
     + GET /dir &format=json
@@ -32,20 +33,27 @@ go build or go install
 - Firefox, safari, Chrome.
 - Perpahs ie10 but not tested
 
-
 ##### @Todo
 
 + ~~Add some type of flahs session, to notify user after an upload~~
 + ~~Add the current path, and a direct acces to parent path~~
 + ~~Add file operations, like delete, move or~~ ~~compress zip files..~~
 - Big code refactor to milestone 1.0.
-    - PACKAGE filsistem json .. with common operations... 
-    - Frontend
-- Improbe json api.
-- Add param for CORS handling
-- Add some kind of authentification
-- Add some kind of permisions...
-- Review log system.
+    ~~- PACKAGE filsistem json .. with common operations...~~
+    ~~Frontend~~
+ ~~-Improbe json api.~~
+- Backend. Add system commands as plugin.. with System services or commands 
+    The commands must be, system commands, and should be configured, 
+    on json. App, only loads them, and handles execution of them
+- UI. Add a Generic command with output ( Perhaps a modal )
+- UI. Improve javascript prompt, with some kind of widget
+- UI. Add a button on toolbar, with shortcuts to system commands
+- UI/Backend. Add a bookmark system. Perhaps a file .bookmark.js on root.
+
+- Back. Add param for CORS handling
+- Back. Add some kind of authentification
+- Back. Add some kind of permisions...
+- Back. Review log system.
 
 
 ##### Changelog

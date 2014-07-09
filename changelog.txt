@@ -1,0 +1,21 @@
+
+
+
+v.092a
+----
+
+Backend:
+    - Refactor actions, with command pattern.
+    - Writed tests on commands
+
+Frontend: UI
+    Features:
+    - Edit files with codemirror
+    - Compress files in tar.gz
+    - Copy files
+
+    Refactor:
+    - Flash messenger as a service
+    - Data Commands, as a service ServerCommand
+    - Multiselect items, and action for deleting them
+    

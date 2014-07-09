@@ -96,9 +96,78 @@ fMgr.directive('tfocus', function($timeout){
     };
 })
 
+fMgr.service('Flash', function($timeout){
+
+    var $scope;
+    var duration = 3000
+
+    function message(type, msg) {
+    
+        $scope.flash = { type:type, message:msg }
+        $timeout(function(){ 
+            $scope.flash = undefined
+         }, duration)
+    }
+
+    this.scope = function(sc) {
+        $scope = sc
+        return this
+    }
+
+    this.duration = function(d) {
+        duration = d
+        return this
+    }
+
+    this.success = function(msg) {
+        message("bg-success", msg)
+    }
+
+    this.error = function(msg) {
+        message("bg-danger", msg)        
+    }
+
+})
+
+fMgr.factory('ServerCommand', function($http, $q, Flash){
+
+    var queryServer = function(params) {
+        return $http.post("/", params)
+    }
+
+    var on_error = function(data) {
+        console.log(data)
+        Flash.error("server error")
+    }
+
+    return {
+        get_raw: function(params) {
+            return queryServer(params)
+        },
+        get: function(params, ok, refresh) {
+            queryServer(params).then(function(d){
+                if(d.data.status == 0) {
+                    Flash.success(ok)
+                    if(refresh)
+                        refresh()
+                } else {
+                    Flash.error(d.data.message, 5000)
+                }
+            }, on_error)
+        }
+
+    }
+})
 
 
-fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window, $timeout){
+
+fMgr.controller("ListCtr", function($scope, $http, $location, 
+        $document, $window, $timeout, ServerCommand, Flash){
+
+
+    // Config flash
+    Flash.scope( $scope );
+
 
     $scope.Path = "[% .Path %]"
     $scope.view = 'main'
@@ -106,7 +175,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     function get_data() {
         $http.get($scope.Path + "?format=json")
             .then(function(res){
-                console.log(res)
+                //console.log(res)
                 if(res.data=="null")
                     $scope.Files = []
                 else
@@ -123,12 +192,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 $scope.selected = 0
 
             }, function(error){
-                //alert('error')
-                //@todo... better blocking flash message for this case
-                Flash_Message("bg-danger", "Server disconnected!", 10000)
-                //$location.path( $scope.OldPath )
-                //$scope.Path = $scope.OldPath
-                
+                Flash.duration(10000).error( "Server Disconnected" )
             })
         $scope.view = 'main'
     }
@@ -212,27 +276,6 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
          
     })
 
-    $scope.DeleteFile = function(item) {
-
-        var res = confirm("Are you sure?")
-        if(res) {
-            //console.log( $scope.Path + item )
-            $http.get("/", {params:{
-                "ajax": "true",
-                "action": "delete",
-                "file": $scope.Path + item
-            }}).then(function(d){
-                if(d.data == "ok") {
-                    Flash_Message("bg-success", "File deleted")
-                    //$location.path( $scope.Path )
-                    get_data()
-                } else {
-                    Flash_Message("bg-danger", d.data, 5000)
-                }
-            })
-        }
-    }
-
     $scope.AddFolder = function() {
 
         if( $scope.folder_popover == true )
@@ -255,44 +298,62 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 
     }
 
+    $scope.RenameFile = function(f) {
+        var old_path = $scope.Path +  f
+        var res = prompt("Rename/Move File?", old_path)
+        if(res ) {
+            if(res == old_path) return
+            ServerCommand.get({
+                action: 'rename', 
+                params: {
+                    source: old_path,
+                    dest: res
+                }
+            }, "File renamed", get_data)
+        }   
+    }
+
+    $scope.CopyFile = function(f) {
+        var old_path = $scope.Path +  f
+        var res = prompt("Copy To:", old_path)
+        if(res ) {
+            if(res == old_path) return
+            ServerCommand.get({
+                action: 'copy', 
+                params: {
+                    source: old_path,
+                    dest: res
+                }
+            }, "File copied", get_data)
+        }   
+    }
+
+
     $scope.CreateFolder = function() {
         var folder = $scope.folder_filename
         $scope.folder_filename = undefined
         $scope.folder_popover = undefined
 
         if(!folder) {
-
-            Flash_Message("bg-danger", "Provide a folder name")
+            Flash.error("Provide a folder name")
             return
         }  
 
-        $http.get("/", {params:{
-                "ajax": "true",
-                "action": "create_folder",
-                "file": folder,
-                "path": $scope.Path
-            
-            }}).then(function(d){
-                if(d.data == "ok") {
-                    Flash_Message("bg-success", "Folder Created")
-                    //$location.path( $scope.Path )
-                    get_data()
-                } else {
-                    Flash_Message("bg-danger", d.data, 5000)
-                }
-            })
-
+        ServerCommand.get({
+            action: 'createFolder',
+            params: { source: $scope.Path + folder }
+        }, "Folder Created", get_data)
     }
 
-    function Flash_Message(type, msg, time) {
+    $scope.Compress = function(item) {
 
-        t = 3000
-        if(time) t = time;
+        ServerCommand.get({
+            action: 'compress',
+            params: {
+                source: $scope.Path + item
+            }
+        }, "File_compressed", get_data)
 
-        $scope.flash = { type:type, message:msg }
-        $timeout(function(){ 
-            $scope.flash = undefined
-         }, t)
     }
 
 
@@ -304,19 +365,17 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
            
             var xhr = new XMLHttpRequest();
             xhr.open('PUT', $scope.Path, true);
-
-            
             
             xhr.onload = function(e) {
                 //console.log(e)
                 document.getElementById('file_upload').removeEventListener('change', uploadFiles);
                 document.getElementById("file_upload").value = "";
-                Flash_Message("bg-success", "File uploaded")
+                Flash.success("File uploaded")
                 get_data()
              };
 
              xhr.onerror = function(e) {
-                Flash_Message("bg-danger", "Error uploading file")
+                Flash.error("Error uploading file")
              }
 
             xhr.upload.onprogress = function(e) {
@@ -340,33 +399,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     }
 
 
-    $scope.RenameFile = function(f) {
-        var old_path = $scope.Path +  f
-        var res = prompt("Rename/Move File?", old_path)
-        if(res ) {
-            
-            if(res == old_path) return
-
-            $http.get("/", {params:{
-                "ajax": "true",
-                "action": "rename",
-                "file": old_path,
-                "new": res
-
-            }}).then(function(d){
-                if(d.data == "ok") {
-                    Flash_Message("bg-success", "File renamed")
-                    //$location.path( $scope.Path )
-                    get_data()
-                } else {
-                    Flash_Message("bg-danger", d.data, 5000)
-                }
-            })
-        } else {
-            return
-        }
-        
-    }
+    
 
     // Editor
     $scope.editorOptions = {
@@ -379,8 +412,10 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     $scope.EditFile = function(item) {
         $scope.currentEditedFile = $scope.Path + item
         var file = $scope.Path + item
+        var noJsonTransform = function(data) { return data; };
 
-        $http.get( file, {}).then(function(d){
+        $http.get( file, {
+            transformResponse: noJsonTransform}).then(function(d){
             //console.log(d)
             $scope.EditorCurrentContent = d.data
             $scope.EditorOldContent = $scope.EditorCurrentContent
@@ -413,25 +448,21 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
     }
 
     $scope.SaveFile = function(exit) {
-        $http.post("/", {
-            //"ajax": "true",
-            'file': $scope.currentEditedFile,
-            'content': $scope.EditorCurrentContent
-            //'action': 'save'
-        }).then(function(d){
-            if(d.data == "ok") {
-                Flash_Message("bg-success", "File saved!")
-                $scope.EditorOldContent = $scope.EditorCurrentContent
-                if(exit==true) {
+        
+        var onSave = function(){
+            $scope.EditorOldContent = $scope.EditorCurrentContent
+               if(exit==true) 
                     $scope.ToView('main')
+        }
+
+        ServerCommand.get({
+            action: 'save',
+                params: {
+                    file: $scope.currentEditedFile,
+                    content: $scope.EditorCurrentContent
                 }
-            } else {
-                Flash_Message("bg-danger", "Error Saving File")
-            }
-        })
+            }, "File Saved", onSave)
     }
-
-
 
 
     // Multiselect
@@ -457,41 +488,31 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
 
     }
 
+    $scope.DeleteFile = function(item) {
+        var res = confirm("Are you sure?")
+        if(res) {
+            ServerCommand.get({
+                action: 'delete',
+                paramslist: [$scope.Path + item]
+            }, "File deleted!", get_data)
+        }
+    }
+
 
     $scope.DeleteSelected = function() {
         var items = []
         angular.element('input[type="checkbox"]').each(function(i, item){
-            //console.log(item)
             if( item.checked == true ) {
                 items.push( $scope.Path + item.value )
             }
         })
 
-        $http.get("/", {params:{
-                "ajax": "true",
-                "action": "deleteList",
-                "files": JSON.stringify(items)
-        }}).then(function(d){
-                if(d.data == "ok") {
-                    Flash_Message("bg-success", "Files deleted")
-                    //$location.path( $scope.Path )
-                    get_data()
-                } else {
-                    Flash_Message("bg-danger", d.data, 5000)
-                }
-        })
-
-        //console.log(items)
+        ServerCommand.get({
+            action: 'delete',
+            paramslist: items
+        }, "Files deleted!", get_data)
     }
 
-
-
-    
-    /*$scope.$watch('filtered.length', function(nv, ov){
-        console.log('ara')
-        angular.element('input[type="checkbox"]').attr('checked', false)
-        $scope.selected = 0
-    })*/
 
 })
     
@@ -617,26 +638,31 @@ fMgr.controller("ListCtr", function($scope, $http, $location, $document, $window
                 <td width="100">{{ item.Size/1024|number:0 }}Kb</td>
                 <td width="140">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }}</td>
                 <td width="90">
-
                 
                     
-                    <span ng-click="DeleteFile(item.Name)" class="glyphicon glyphicon-trash delete" tooltip-placement="top" tooltip="Delete"> </span>
-                    <a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
-                        class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>
+                    
+
+                    <!--<a href="{{ item.Name }}/?format=zip" target="_self" ng-if="item.IsDir" 
+                        class="glyphicon glyphicon-download-alt delete" tooltip-placement="top" tooltip="Donwload as Zip"> </a>-->
                     
                     <div class="btn-group" dropdown>
                         <a href class="dropdown-toggle">
                             <span class="glyphicon glyphicon-cog"> </span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
+                            <li><a ng-click="CopyFile(item.Name)" href="#">Copy</a></li>
+                            <li><a ng-click="DeleteFile(item.Name)" href="#">Delete</a></li>
                             <li ng-if="!item.IsDir"><a ng-click="EditFile(item.Name)" href="#">Edit</a></li>
                             <li><a ng-click="RenameFile(item.Name)" href="#">Rename</a></li>
-                            <li ng-if="item.IsDir"><a href="{{ item.Name }}/?format=zip" target="_self">Donwload as Zip</a></li>
+                            <li><a ng-click="Compress(item.Name)" href="#">Compress</a></li>
+                            <li ng-if="item.IsDir"><a href="{{ item.Name }}/?format=zip">Download as Zip</a></li>
+                            
                         </ul>
 
                     </div>
 
-                    
+                    <span ng-if="item.IsText" ng-click="EditFile(item.Name)" class="glyphicon glyphicon-pencil delete" tooltip-placement="top" tooltip="Edit"> </span>
+
                 </td>
             </tr>
         </tbody>

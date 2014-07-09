@@ -15,6 +15,7 @@ import (
 	"path"
 	"path/filepath"
 	//	"runtime/pprof"
+	"github.com/jordic/file_server/util"
 	_ "net/http/pprof"
 	"strings"
 	"time"
@@ -28,13 +29,14 @@ var store = sessions.NewCookieStore([]byte("keysecret"))
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.91a"
+const VERSION = "0.92a"
 
 type File struct {
 	Name    string
 	Size    int64
 	ModTime time.Time
 	IsDir   bool
+	IsText  bool
 }
 
 /*
@@ -57,19 +59,6 @@ func main() {
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
 	flag.Parse()
-
-	/*
-		go func() {
-			log.Println(http.ListenAndServe("localhost:6060", nil))
-		}()
-		if cpuprof != "" {
-			f, err := os.Create(cpuprof)
-			if err != nil {
-				log.Fatal(err)
-			}
-			pprof.StartCPUProfile(f)
-			defer pprof.StopCPUProfile()
-		}*/
 
 	if logging == false {
 		log.SetOutput(ioutil.Discard)
@@ -97,27 +86,13 @@ func main() {
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
 
-	// get dir / app>template
-	//	get dir /.zip
-	//  get dir /.json
-
-	//fmt.Printf("ajax: %s\n", r.Header.Get("angular"))
-	//fmt.Printf("ajax: %s\n", r.Header.Get("Accept"))
 	//Is_Ajax := strings.Contains(r.Header.Get("Accept"), "application/json")
-	//fmt.Printf("is_ajax %s\n", )
-
 	if r.Method == "PUT" {
 		AjaxUpload(w, r)
 		return
 	}
-
 	if r.Method == "POST" {
-		SaveFile(w, r)
-		return
-	}
-
-	if r.FormValue("ajax") == "true" {
-		AjaxActions(w, r)
+		WebCommandHandler(w, r)
 		return
 	}
 
@@ -126,119 +101,11 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		handleDir(w, r)
 	} else {
 		log.Printf("downloading file %s", path.Clean(dir+r.URL.Path))
+		r.Header.Del("If-Modified-Since")
 		http.ServeFile(w, r, path.Clean(dir+r.URL.Path))
 		//http.ServeContent(w, r, r.URL.Path)
 		//w.Write([]byte("this is a test inside file handler"))
 
-	}
-
-}
-
-func SaveFile(w http.ResponseWriter, r *http.Request) {
-
-	decoder := json.NewDecoder(r.Body)
-	var t map[string]string
-	err := decoder.Decode(&t)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	//fmt.Printf("%#v", t)
-	//fmt.Print(t["file"])
-	f := strings.Trim(t["file"], "/")
-	data := []byte(t["content"])
-	err = ioutil.WriteFile(dir+f, data, 0644)
-	if err != nil {
-		fmt.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	fmt.Fprint(w, "ok")
-	return
-
-}
-
-func AjaxActions(w http.ResponseWriter, r *http.Request) {
-
-	if r.FormValue("action") == "save" {
-		f := strings.Trim(r.FormValue("file"), "/")
-		data := []byte(r.FormValue("content"))
-
-		err := ioutil.WriteFile(dir+f, data, 0644)
-		if err != nil {
-			fmt.Print(err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, "ok")
-		return
-	}
-
-	if r.FormValue("action") == "delete" {
-		f := strings.Trim(r.FormValue("file"), "/")
-		err := os.Remove(dir + f)
-		if err != nil {
-			fmt.Fprint(w, fmt.Sprintf("Error %s", err))
-			return
-		}
-		fmt.Fprint(w, fmt.Sprintf("ok"))
-		return
-	}
-
-	if r.FormValue("action") == "deleteList" {
-		var l = make([]string, 0)
-		list := r.FormValue("files")
-		err := json.Unmarshal([]byte(list), &l)
-		if err != nil {
-			fmt.Fprint(w, err)
-		}
-
-		//fmt.Printf("list %#v %#v", l, list)
-		for k := range l {
-			f := strings.Trim(l[k], "/")
-			fmt.Println(l[k])
-			err := os.Remove(dir + f)
-			if err != nil {
-				fmt.Fprint(w, fmt.Sprintf("Error %s", err))
-			}
-		}
-
-		fmt.Fprint(w, "ok")
-		return
-	}
-
-	if r.FormValue("action") == "create_folder" {
-		f := strings.Trim(r.FormValue("path"), "/") + "/" + r.FormValue("file")
-		err := os.Mkdir(dir+f, 0777)
-		if err != nil {
-			fmt.Fprint(w, fmt.Sprintf("Error %s", err))
-			return
-		}
-		fmt.Fprint(w, fmt.Sprintf("ok"))
-		return
-	}
-
-	// @todo make some test cases of trim renames...
-	if r.FormValue("action") == "rename" {
-		fo := strings.Trim(r.FormValue("file"), "/")
-		fn := strings.Trim(r.FormValue("new"), "/")
-		fo = strings.Trim(fo, "../")
-		fn = strings.Trim(fn, "../")
-		//fmt.Printf("Old %s new %s", fo, fn)
-
-		if dir != "." {
-			fo = dir + fo
-			fn = dir + fn
-		}
-
-		err := os.Rename(fo, fn)
-		if err != nil {
-			fmt.Fprint(w, err)
-			return
-		}
-
-		fmt.Fprint(w, "ok")
-		return
 	}
 
 }
@@ -354,6 +221,11 @@ func (t *DirJson) Get() error {
 			fi.Size(),
 			fi.ModTime(),
 			fi.IsDir(),
+			false,
+		}
+		// detect is if text file
+		if fi.IsDir() == false {
+			xf.IsText = util.IsTextFile(t.d + fi.Name())
 		}
 
 		// if is a symlink ... follow it to test if is a real dir...
