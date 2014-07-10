@@ -18,10 +18,15 @@
 
 #### Install
 
-Donwload a binary build:
+Donwload a binary build: (Stable)
 
 [Osx 64bits](builds/file_server_osx)
 [Linux 64bits](builds/file_server_linux_amd64)
+
+Devel. 0.92a
+
+[Linux amd64](https://github.com/jordic/file_server/raw/master/builds/file_server_linux_amd64)
+[Osx](https://github.com/jordic/file_server/raw/master/builds/file_server_linux_amd64)
 
 Or compile it:
 

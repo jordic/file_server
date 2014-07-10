@@ -1,14 +1,11 @@
 
 
-v.093a
----
-
-- Added button to ad new files
-- Rename files from inside the list
-
 
 v.092a
 ----
+
+- Added button to ad new files
+- Rename files from inside the list
 
 Backend:
     - Refactor actions, with command pattern.
