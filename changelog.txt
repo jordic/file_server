@@ -1,5 +1,11 @@
 
 
+v.093a
+---
+
+- Added button to ad new files
+- Rename files from inside the list
+
 
 v.092a
 ----
@@ -7,6 +13,7 @@ v.092a
 Backend:
     - Refactor actions, with command pattern.
     - Writed tests on commands
+    - Json list, detect text files. Added property at File{IsText}
 
 Frontend: UI
     Features:

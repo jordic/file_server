@@ -66,10 +66,21 @@ const templateList = `
         font-size:12px;  height: 600px; line-height:16px; 
         border:1px solid #eaeaea;  }
 
+    .rename { font-size:11px; color:green; display:block; 
+        float:right; margin-right:10px;  }
+    .tdrename { cursor:pointer; position:relative; }
+    .tdrename:hover {  }
+    .renameinput { position:absolute;z-index:5; background-color:#fff; top:3px; left:-3px;  }
+    .renameinput input:focus { outline: none }
+    .renameinput input { border:1px solid #eaeaea;
+        width:80%; height:20px; background-color:#eaeaea; margin-top:5px; }
+    .renameinput button { position:absolute; left:81%; top:4px; }
+    .renameinput button.btn-default { position:absolute; left:88%; top:4px; }
 
     </style>
 <script>
-var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap', 'ui.codemirror']);
+var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap', 
+        'ui.codemirror', 'tempoModule']);
 
 fMgr.config(['$locationProvider', function($locationProvider){
     $locationProvider.html5Mode(true);
@@ -95,6 +106,16 @@ fMgr.directive('tfocus', function($timeout){
         }
     };
 })
+
+fMgr.filter('bytes', function() {
+    return function(bytes, precision) {
+        if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+        if (typeof precision === 'undefined') precision = 1;
+        var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+            number = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
+    }
+});
 
 fMgr.service('Flash', function($timeout){
 
@@ -131,6 +152,27 @@ fMgr.service('Flash', function($timeout){
 
 fMgr.factory('ServerCommand', function($http, $q, Flash){
 
+    var opts = {
+        'new_file': function(p1) {
+            return {
+                action: 'save',
+                params: {
+                    file: p1,
+                    content: " " 
+                }
+            }
+        },
+        createFolder: function(p1) {
+          return {
+                action: 'createFolder',
+                params: {
+                    source: p1,
+                }
+            }  
+        }
+    }
+
+
     var queryServer = function(params) {
         return $http.post("/", params)
     }
@@ -154,10 +196,16 @@ fMgr.factory('ServerCommand', function($http, $q, Flash){
                     Flash.error(d.data.message, 5000)
                 }
             }, on_error)
+        },
+        
+        prepare: function(type, p1, p2, p3) {
+            return opts[type](p1, p2, p3)
         }
 
     }
 })
+
+
 
 
 
@@ -172,7 +220,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
     $scope.Path = "[% .Path %]"
     $scope.view = 'main'
     
-    function get_data() {
+    var get_data = function() {
         $http.get($scope.Path + "?format=json")
             .then(function(res){
                 //console.log(res)
@@ -196,7 +244,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             })
         $scope.view = 'main'
     }
-
+    $scope.get_data = get_data
     get_data()
 
     //Flash_Message('bg-success', "Data Loaded")
@@ -276,28 +324,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
          
     })
 
-    $scope.AddFolder = function() {
-
-        if( $scope.folder_popover == true )
-            $scope.folder_popover = undefined
-        else $scope.folder_popover = true
-
-        // This is for handling close when clicks outside popover
-        var closePopOver = function(e) {
-            if (angular.element(e.target).is('#folder_pop *, #folder_pop')) {
-                return false
-            }
-            angular.element(window).off("click", closePopOver)
-            $scope.folder_popover = undefined
-            $scope.$apply()
-        }
-
-        if($scope.folder_popover === true) {
-            angular.element(window).on("click", closePopOver)
-        } 
-
-    }
-
+    
     $scope.RenameFile = function(f) {
         var old_path = $scope.Path +  f
         var res = prompt("Rename/Move File?", old_path)
@@ -329,21 +356,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
     }
 
 
-    $scope.CreateFolder = function() {
-        var folder = $scope.folder_filename
-        $scope.folder_filename = undefined
-        $scope.folder_popover = undefined
-
-        if(!folder) {
-            Flash.error("Provide a folder name")
-            return
-        }  
-
-        ServerCommand.get({
-            action: 'createFolder',
-            params: { source: $scope.Path + folder }
-        }, "Folder Created", get_data)
-    }
+    
 
     $scope.Compress = function(item) {
 
@@ -513,7 +526,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         }, "Files deleted!", get_data)
     }
 
-
+    
 })
     
 
@@ -564,31 +577,25 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 </form>
  <form role="form">
     <div class="col-md-6">
-        <span id="folder_pop">
-            <button type="button" class="btn btn-info btn-sm" ng-click="AddFolder()"><span class="glyphicon glyphicon-folder-open"> </span> &nbsp; Add Folder</button>
-            <div ng-show="folder_popover" class="popover bottom am-flip-x" style="top: 20px; left: -5px; display: block; width:200px">
-                <div class="arrow"></div>
-                <h3 class="popover-title">Folder Name</h3>
-                <div class="popover-content">
-                    <input type="text" class="form-control input-sm" 
-                        ng-model="folder_filename" id="folder_field" 
-                        tfocus="folder_popover">
-                    <button type="button" ng-click="CreateFolder()" 
-                        class="btn btn-info btn-sm pull-right" 
-
-                        style="margin-top:5px; margin-bottom:5px">Add</button>
-                </div>
-            </div>
-        </span>
+        
+        <inline-modal action="createFolder" btntext="Add Folder" 
+            icon="glyphicon-folder-open" title="Folder Name:" handler="get_data()" 
+            message="Folder created Created!" path="Path"></inline-modal>
+        
         <button type="button" class="btn btn-info btn-sm" type="file" ng-click="AddFiles()"
         tooltip-placement="top" tooltip="Upload Multiple Files"><span class="glyphicon glyphicon-plus"> </span> &nbsp; Upload</button>
+
         
-        <a class="btn btn-info btn-sm" target="_self" href="?format=zip" 
-            tooltip-placement="top" tooltip="Download as Zip"><span class="glyphicon glyphicon-download-alt"> </span></a>
+        <inline-modal action="new_file" btntext="Add File" 
+            icon="glyphicon-file" title="Filename:" handler="get_data()" 
+            message="File Created!" path="Path"></inline-modal>
+
         &nbsp;&nbsp;&nbsp;
+        
         <button class="btn btn-danger btn-sm" ng-show="selected>0" ng-click="DeleteSelected()"
             tooltip-placement="top" tooltip="Delete selected"><span class="glyphicon glyphicon-trash"> </span></button>
 
+        
 
     </div>
     <div class="col-md-6 pull-right text-right">
@@ -633,9 +640,11 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                 <td width="20"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
                     ng-click="CheckboxToggle(this, $event)" /></td>
                 <td width="20"><span class="glyphicon glyphicon-folder-open" ng-show="item.IsDir"></span>
-                <span ng-hide="item.IsDir" class="glyphicon glyphicon-file"></span></td>
-                <td><a href="{{ Path }}{{ item.Name }}" target="_self" ng-if="!item.IsDir">{{ item.Name }}</a><a href="{{ item.Name }}/" ng-if="item.IsDir" class="dir">{{ item.Name }}</span></td>
-                <td width="100">{{ item.Size/1024|number:0 }}Kb</td>
+                        <span ng-hide="item.IsDir" class="glyphicon glyphicon-file"></span></td>
+                
+                <td inline-edit item="item" path="Path"> </td>
+                
+                <td width="100">{{ item.Size|bytes }}</td>
                 <td width="140">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }}</td>
                 <td width="90">
                 
@@ -647,7 +656,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                     
                     <div class="btn-group" dropdown>
                         <a href class="dropdown-toggle">
-                            <span class="glyphicon glyphicon-cog"> </span>
+                            <span class="glyphicon glyphicon-align-justify"> </span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a ng-click="CopyFile(item.Name)" href="#">Copy</a></li>
@@ -713,7 +722,186 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
   </body>
 
+<script type="text/ng-template" id="/inline-modal.html">
+    <button class="btn btn-info btn-sm" ng-click="ClickButton()">
+        <span class="glyphicon {{ icon }}"> </span>&nbsp; {{ btntext }}</button>
+
+    <div ng-show="folder_popover==true" class="popover bottom am-flip-x" 
+        style="display: block; width:200px">
+                <div class="arrow"></div>
+                <h3 class="popover-title">{{ title }}</h3>
+                <div class="popover-content">
+                    <input type="text" class="form-control input-sm" 
+                        ng-model="filename" id="folder_field" 
+                        tfocus="folder_popover">
+                    <button type="button" ng-click="Process()" 
+                        class="btn btn-info btn-sm pull-right" 
+                            style="margin-top:5px; margin-bottom:5px">Add</button>
+                </div>
+        </div>
+
+
+</script>
+
+<script type="text/ng-template" id="/inline-edit.html">
+    <td ng-mouseenter="roll=true" ng-mouseleave="roll=false" class="tdrename"
+        ng-click="Show($event)">    
+        <a href="{{ Path }}{{ item.Name }}" target="_self" 
+            ng-if="!item.IsDir">{{ item.Name }}</a>
+        <a href="{{ item.Name }}/" ng-if="item.IsDir" class="dir">{{ item.Name }}</a>
+    
+
+    <div class="col-md-12 renameinput inline-form" ng-show="showrename==true">
+        <input type="text" class="" name="value" 
+            ng-model="item.Name" tfocus="showrename" />
+        <button class="btn btn-info btn-xs" ng-click="SaveItem()">SAVE</button>
+        <button class="btn btn-default btn-xs" ng-click="showrename=false">CANCEL</button>
+    </div>
+    </td>
+</script>
+
 <script>
+
+
+var tempoModule = angular.module('tempoModule', ['ui.bootstrap']);
+
+tempoModule.directive('inlineEdit', function($log, $position, ServerCommand){
+
+    return {
+        templateUrl: "/inline-edit.html",
+        link: link,
+        scope: {
+            item: "=item",
+            Path: "=path"
+        },
+        replace: true,
+        restrict: 'AEC',
+    }
+
+    
+    function link($scope, element, attrs) {
+        
+        var old_path = $scope.Path + $scope.item.Name
+
+        $scope.Show = function(e) {
+            //console.log(e.target.nodeName)
+            //console.log(element)
+            if(e.target.nodeName != "TD") {
+                e.stopPropagation()
+                return
+            }
+
+            //console.log("passa")
+
+            if( $scope.showrename == true ) {
+                $scope.showrename = false
+            } else {
+                $scope.showrename = true
+            }
+        }
+    
+        $scope.SaveItem = function() {
+            
+            //var old_path = $scope.Path + old_name
+            var res = $scope.Path + $scope.item.Name
+
+            if( old_path == res ) return;
+
+            ServerCommand.get({
+                    action: 'rename', 
+                    params: {
+                        source: old_path,
+                        dest: res
+                    }
+                }, "File renamed", null)
+
+            $scope.showrename = false;
+
+        }
+
+    }
+
+    
+
+})
+
+tempoModule.directive('inlineModal', function($log, $position, ServerCommand){
+
+    return {
+        templateUrl: "/inline-modal.html",
+        link: link,
+        restrict: 'AEC',
+        scope: {
+            action: '@action',
+            btntext: '@',
+            icon: '@',
+            title: '@title',
+            handler: '&',
+            Path: '=path',
+            message: '@'
+        }
+    }
+
+    function link($scope, element, attrs) {
+
+        var content = angular.element( '.popover', element )
+        
+        var res = $position.position(element)
+        res.display = 'block'
+        res.width = '200px'
+        res.left -= 50
+        res.top += 40
+              // Now set the calculated positioning.
+        $log.log(res)
+        content.css({
+            'top': 35, 
+            'left': res.left,
+            'width': '200px'
+        });
+
+        $scope.folder_popover = false
+
+        $scope.ClickButton = function() {
+            //alert('click')
+            if( $scope.folder_popover == true ) {
+                $scope.folder_popover = false
+            } else {
+                $scope.folder_popover = true
+            }
+
+            var closePopOver = function(e) {
+                var child = angular.element("*", element)
+                if ( angular.element(e.target).is(child) ) {
+                    return false
+                }
+                angular.element(window).off("click", closePopOver)
+                $scope.folder_popover = undefined
+                $scope.$apply()
+            }
+
+            if($scope.folder_popover === true) {
+                angular.element(window).on("click", closePopOver)
+            } 
+        }
+
+        $scope.Process = function() {
+            var obj = ServerCommand.prepare($scope.action, $scope.Path + $scope.filename )
+            var msg = $scope.message
+            //console.log(res)
+            //$scope.handler()
+            ServerCommand.get(obj, msg, $scope.handler)
+
+            $scope.ClickButton()
+            $scope.filename = ""
+            //$scope.$apply()
+        }
+  
+    }
+
+    
+})
+
+
 
 /*
  angular-tablesort v1.0.4
