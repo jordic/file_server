@@ -26,6 +26,7 @@ var (
 	dir     string
 	port    string
 	logging bool
+	depth   int
 	// directory indexin
 
 )
@@ -56,6 +57,8 @@ func main() {
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
+	//flag.IntVar(&depth, "depth", 5, "Depth directory crwaler")
+
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
 	flag.Parse()

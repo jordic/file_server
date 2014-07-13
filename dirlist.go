@@ -14,7 +14,7 @@ var dirlist *fuzzyfs.DirList
 func init() {
 
 	dirlist = fuzzyfs.NewDirList()
-	dirlist.MaxDepth = 3
+	dirlist.MaxDepth = 5
 	dirlist.PathSelect = fuzzyfs.DirsAndSymlinksAsDirs
 
 }
