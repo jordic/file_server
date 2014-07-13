@@ -1,0 +1,37 @@
+
+
+v 093a
+--
+- Added a quick fuzzy directory search on the main bar, for easy navigation
+throught shared folders.
+-
+
+
+v.092b
+--
+- When enabled inline edition of filenames, created a bug, with $location.
+- From inside a directive, it does not work. 
+
+
+v.092a
+----
+
+- Added button to ad new files
+- Rename files from inside the list
+
+Backend:
+    - Refactor actions, with command pattern.
+    - Writed tests on commands
+    - Json list, detect text files. Added property at File{IsText}
+
+Frontend: UI
+    Features:
+    - Edit files with codemirror
+    - Compress files in tar.gz
+    - Copy files
+
+    Refactor:
+    - Flash messenger as a service
+    - Data Commands, as a service ServerCommand
+    - Multiselect items, and action for deleting them
+    
