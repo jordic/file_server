@@ -1,5 +1,17 @@
 
 
+v 093a
+--
+- Added a quick fuzzy directory search on the main bar, for easy navigation
+throught shared folders.
+-
+
+
+v.092b
+--
+- When enabled inline edition of filenames, created a bug, with $location.
+- From inside a directive, it does not work. 
+
 
 v.092a
 ----

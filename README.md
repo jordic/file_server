@@ -5,7 +5,8 @@
 #### Features
 
 - Fast UI. Json + angular
-- Inline search
+- Directory fuzzy search / Acces
+- Inline search ( current list )
 - Upload mutliple files.
 - Big uploads. Tested with 1G files. ( Uploads are streamed to disk )
 - File delete / remove / copy / compress

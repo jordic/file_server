@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/sessions"
+	//"github.com/gorilla/sessions"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -16,20 +16,26 @@ import (
 	"path/filepath"
 	//	"runtime/pprof"
 	"github.com/jordic/file_server/util"
+
 	_ "net/http/pprof"
 	"strings"
 	"time"
 )
 
-var dir string
-var port string
-var logging bool
-var store = sessions.NewCookieStore([]byte("keysecret"))
+var (
+	dir     string
+	port    string
+	logging bool
+	// directory indexin
+
+)
+
+//var store = sessions.NewCookieStore([]byte("keysecret"))
 
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.92a"
+const VERSION = "0.93a"
 
 type File struct {
 	Name    string
@@ -38,12 +44,6 @@ type File struct {
 	IsDir   bool
 	IsText  bool
 }
-
-/*
-@ TODO
-download zip folders
-https://bitbucket.org/kardianos/staticserv/src/5a536ebb8016d795187138ad99881533e14a59ef/main.go?at=default
-*/
 
 func main() {
 
@@ -77,7 +77,12 @@ func main() {
 		dir = dir + "/"
 	}
 
+	// build index files in background
+	go Build_index(dir)
+
 	mux := http.NewServeMux()
+	mux.Handle("/-/api/dirs", http.HandlerFunc(SearchHandle))
+
 	mux.Handle("/", http.HandlerFunc(handleReq))
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
@@ -300,18 +305,3 @@ func (t *DirZip) Get() error {
 	return nil
 
 }
-
-/*
-// commands
-supervisorctl restart xxxx
-service nginx restart
-service mysql restart
-mv $1 $2
-tar xvfz name.tar.gz asdf/
-git pull origin master
-git push origin master
-git commit -am "message"
-bin/sqldumpr -xxxx
-
-
-*/

@@ -55,6 +55,8 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("command executed %s", wc.Command)
+
 	w.Write(out)
 	return
 }
