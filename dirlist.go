@@ -14,7 +14,7 @@ var dirlist *fuzzyfs.DirList
 func init() {
 
 	dirlist = fuzzyfs.NewDirList()
-	dirlist.MaxDepth = 5
+	dirlist.MaxDepth = 4
 	dirlist.PathSelect = fuzzyfs.DirsAndSymlinksAsDirs
 
 }
@@ -44,12 +44,18 @@ func SearchHandle(w http.ResponseWriter, r *http.Request) {
 
 	res := dirlist.Query(query, 2)
 	//fmt.Printf("%#v", res)
-	out, err := json.Marshal(res)
+	cut := len(res)
+	if cut > 10 {
+		cut = 9
+	}
+
+	out, err := json.Marshal(res[0:cut])
 
 	if err != nil {
 		log.Printf("error encoding results... ", err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	//fmt.Fprint(w, out)
 	w.Write(out)
 	return

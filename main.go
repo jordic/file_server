@@ -5,19 +5,16 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	//"github.com/gorilla/sessions"
+	"github.com/jordic/file_server/util"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path"
 	"path/filepath"
-	//	"runtime/pprof"
-	"github.com/jordic/file_server/util"
-
-	_ "net/http/pprof"
 	"strings"
 	"time"
 )
@@ -36,7 +33,7 @@ var (
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.93a"
+const VERSION = "0.93b"
 
 type File struct {
 	Name    string
@@ -84,9 +81,9 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
-	mux.Handle("/-/api/dirs", http.HandlerFunc(SearchHandle))
+	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
 
-	mux.Handle("/", http.HandlerFunc(handleReq))
+	mux.Handle("/", makeGzipHandler(http.HandlerFunc(handleReq)))
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 
@@ -132,6 +129,8 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	// handle json format of dir...
 	if r.FormValue("format") == "json" {
+
+		w.Header().Set("Content-Type", "application/json")
 		result := &DirJson{w, d}
 		err := result.Get()
 		if err != nil {
@@ -155,7 +154,7 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 		"Path":    r.URL.Path,
 		"version": VERSION,
 	}
-
+	w.Header().Set("Content-Type", "text/html")
 	t.Execute(w, v)
 
 }
