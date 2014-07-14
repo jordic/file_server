@@ -120,7 +120,7 @@ const templateList = `
 <script>
 
 function is_mob() {
-   if(window.innerWidth <= 800 && window.innerHeight <= 600) {
+   if(window.innerWidth <= 800) {
      return true;
    } else {
      return false;
@@ -842,7 +842,7 @@ fMgr.controller("FinderCtrl", function($scope, $http, $location){
         ng-click="Show($event)">    
         <a href="{{ Path }}{{ item.Name }}" target="_self" 
             ng-if="!item.IsDir">{{ item.Name }}</a>
-        <a  ng-click="Go(item.Name)" ng-if="item.IsDir" class="dir">{{ item.Name }}</a><span class="visible-sm small"><br />{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }} | {{ item.Size|bytes }}</span>
+        <a  ng-click="Go(item.Name)" ng-if="item.IsDir" class="dir">{{ item.Name }}</a><span class="visible-xs small">{{ item.ModTime|date:'dd/MM/yyyy HH:mm:ss' }} | {{ item.Size|bytes }}</span>
     
 
     <div class="col-md-12 renameinput inline-form" ng-show="showrename==true">
@@ -880,6 +880,10 @@ tempoModule.directive('inlineEdit', function($log, $location, $position, ServerC
         $scope.Show = function(e) {
             //console.log(e.target.nodeName)
             //console.log(element)
+
+            if( window.is_mob() ) 
+                return
+
             if(e.target.nodeName != "TD") {
                 e.stopPropagation()
                 return
