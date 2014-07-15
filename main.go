@@ -81,12 +81,37 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
+	//mux.Handle("/-/libs.js", http.ServeFile(w, r, Asset("libs.js")))
+
+	mux.Handle("/-/assets/", http.HandlerFunc(serve_statics))
+
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
 
 	mux.Handle("/", makeGzipHandler(http.HandlerFunc(handleReq)))
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 
+}
+
+func serve_statics(w http.ResponseWriter, r *http.Request) {
+
+	file := r.URL.Path[10:]
+	by, err := Asset("data/" + file)
+
+	if strings.Contains(file, "css") == true {
+		w.Header().Set("Content-Type", "text/css")
+	}
+
+	if strings.Contains(file, "js") == true {
+		w.Header().Set("Content-Type", "text/javascript")
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(by)
+	return
 }
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +174,12 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we dont receive json param... we are asking, for genric app ui...
-	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(templateList))
+	template_file, err := Asset("data/main.html")
+	if err != nil {
+		log.Fatalf("Cant load template main")
+	}
+
+	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(string(template_file)))
 	v := map[string]interface{}{
 		"Path":    r.URL.Path,
 		"version": VERSION,

@@ -28,7 +28,7 @@ func Build_index(path string) {
 		panic(err)
 	}
 	endTime := time.Now()
-	log.Printf("%d entries. time index .. %s", dirlist.Length(), endTime.Sub(startTime))
+	log.Printf("%d entries. time index .. %s", dirlist.Length, endTime.Sub(startTime))
 
 }
 
