@@ -39,6 +39,38 @@ func data_app_js() ([]byte, error) {
 	)
 }
 
+// data_glyphicons_halflings_regular_eot reads file data from disk. It returns an error on failure.
+func data_glyphicons_halflings_regular_eot() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.eot",
+		"data/glyphicons-halflings-regular.eot",
+	)
+}
+
+// data_glyphicons_halflings_regular_svg reads file data from disk. It returns an error on failure.
+func data_glyphicons_halflings_regular_svg() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.svg",
+		"data/glyphicons-halflings-regular.svg",
+	)
+}
+
+// data_glyphicons_halflings_regular_ttf reads file data from disk. It returns an error on failure.
+func data_glyphicons_halflings_regular_ttf() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.ttf",
+		"data/glyphicons-halflings-regular.ttf",
+	)
+}
+
+// data_glyphicons_halflings_regular_woff reads file data from disk. It returns an error on failure.
+func data_glyphicons_halflings_regular_woff() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.woff",
+		"data/glyphicons-halflings-regular.woff",
+	)
+}
+
 // data_libs_js reads file data from disk. It returns an error on failure.
 func data_libs_js() ([]byte, error) {
 	return bindata_read(
@@ -88,6 +120,10 @@ var _bindata = map[string]func() ([]byte, error){
 	"data/.DS_Store": data_ds_store,
 	"data/app.css": data_app_css,
 	"data/app.js": data_app_js,
+	"data/glyphicons-halflings-regular.eot": data_glyphicons_halflings_regular_eot,
+	"data/glyphicons-halflings-regular.svg": data_glyphicons_halflings_regular_svg,
+	"data/glyphicons-halflings-regular.ttf": data_glyphicons_halflings_regular_ttf,
+	"data/glyphicons-halflings-regular.woff": data_glyphicons_halflings_regular_woff,
 	"data/libs.js": data_libs_js,
 	"data/main.html": data_main_html,
 	"data/styles.css": data_styles_css,
@@ -136,11 +172,19 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 		}},
 		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
 		}},
+		"glyphicons-halflings-regular.svg": &_bintree_t{data_glyphicons_halflings_regular_svg, map[string]*_bintree_t{
+		}},
+		"glyphicons-halflings-regular.ttf": &_bintree_t{data_glyphicons_halflings_regular_ttf, map[string]*_bintree_t{
+		}},
 		"libs.js": &_bintree_t{data_libs_js, map[string]*_bintree_t{
 		}},
 		"main.html": &_bintree_t{data_main_html, map[string]*_bintree_t{
 		}},
 		"styles.css": &_bintree_t{data_styles_css, map[string]*_bintree_t{
+		}},
+		"glyphicons-halflings-regular.eot": &_bintree_t{data_glyphicons_halflings_regular_eot, map[string]*_bintree_t{
+		}},
+		"glyphicons-halflings-regular.woff": &_bintree_t{data_glyphicons_halflings_regular_woff, map[string]*_bintree_t{
 		}},
 	}},
 }}

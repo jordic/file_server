@@ -588,14 +588,30 @@ tempoModule.directive('inlineModal', function($log, $position, ServerCommand){
         var content = angular.element( '.popover', element )
         
         var res = $position.position(element)
+
+        element.css('position', 'relative')
+        //content.css('position', 'absolute')
+
+        //console.log(res)
+
         res.display = 'block'
         res.width = '200px'
-        res.left -= 50
-        res.top += 40
+        
+
+        if( is_mob() ) {
+            res.left = 0
+            res.top = 20
+        } else {
+            res.left = 0
+            res.top = 25
+        }
+
+
+        
         
         //$log.log(res)
         content.css({
-            'top': 35, 
+            'top': res.top, 
             'left': res.left,
             'width': '200px'
         });

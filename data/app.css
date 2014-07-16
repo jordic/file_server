@@ -55,6 +55,9 @@ body { font-family:Arial; font-size:12px }
     #finder input, #finder button, #finder li { font-size:12px; color:#047FC4; }
     .ui-select-highlight { color:#005E4B; }
 
+    /* custom popovers */
+    .popover.bottom > .arrow { left:15px; }
+
     @media(max-width:767px){ 
         td.actions { width:30px; }
         thead td { font-size:11px;}
@@ -71,6 +74,7 @@ body { font-family:Arial; font-size:12px }
         .renameinput input { width: 55%; }
         .renameinput button { left:58% }
         .renameinput button.btn-default { left:72%; }
+
     }
 
 

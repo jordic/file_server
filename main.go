@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	//"mime"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -93,24 +95,30 @@ func main() {
 
 }
 
+type AssetDownload struct {
+	*bytes.Reader
+	io.Closer
+}
+
+func NewAssetDownload(a []byte) *AssetDownload {
+	return &AssetDownload{
+		bytes.NewReader(a),
+		ioutil.NopCloser(nil),
+	}
+}
+
 func serve_statics(w http.ResponseWriter, r *http.Request) {
 
 	file := r.URL.Path[10:]
+
 	by, err := Asset("data/" + file)
-
-	if strings.Contains(file, "css") == true {
-		w.Header().Set("Content-Type", "text/css")
-	}
-
-	if strings.Contains(file, "js") == true {
-		w.Header().Set("Content-Type", "text/javascript")
-	}
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write(by)
+
+	asset := NewAssetDownload(by)
+	http.ServeContent(w, r, file, time.Now(), asset)
 	return
 }
 
