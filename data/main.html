@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/-/assets/styles.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="/-/assets/app.css"  type="text/css" media="screen" />
     <script src="/-/assets/libs.js"></script>
+    <script src="/-/assets/app_services.js"></script>
     <script src="/-/assets/app.js"></script>
     <script>
     var APP_PATH = "[% .Path %]"
@@ -120,7 +121,8 @@
 </div>
 
 
-<div class="row list" ng-show="view=='main'" id="list">
+<div class="row list" ng-show="view=='main'" id="list" 
+    ng-class="(data_loading==true) ?'loading' : ''">
 <div class="col-md-12">
     <table class="table" ts-wrapper>
         <thead>

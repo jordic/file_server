@@ -58,9 +58,12 @@ body { font-family:Arial; font-size:12px }
     /* custom popovers */
     .popover.bottom > .arrow { left:15px; }
 
+    .loading { opacity:0.5; }
+
     @media(max-width:767px){ 
         td.actions { width:30px; }
-        thead td { font-size:11px;}
+        thead td { font-size:11px; }
+        .table thead > tr > td { padding:3px 8px 3px 8px; }
         #filter { display:none; }
         .breadcrumb { margin-bottom:5px; background-color:#fff; margin-left:0px; 
             font-size:14px; padding-left:0px; }

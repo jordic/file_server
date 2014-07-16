@@ -39,6 +39,14 @@ func data_app_js() ([]byte, error) {
 	)
 }
 
+// data_app_services_js reads file data from disk. It returns an error on failure.
+func data_app_services_js() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/app_services.js",
+		"data/app_services.js",
+	)
+}
+
 // data_glyphicons_halflings_regular_eot reads file data from disk. It returns an error on failure.
 func data_glyphicons_halflings_regular_eot() ([]byte, error) {
 	return bindata_read(
@@ -120,6 +128,7 @@ var _bindata = map[string]func() ([]byte, error){
 	"data/.DS_Store": data_ds_store,
 	"data/app.css": data_app_css,
 	"data/app.js": data_app_js,
+	"data/app_services.js": data_app_services_js,
 	"data/glyphicons-halflings-regular.eot": data_glyphicons_halflings_regular_eot,
 	"data/glyphicons-halflings-regular.svg": data_glyphicons_halflings_regular_svg,
 	"data/glyphicons-halflings-regular.ttf": data_glyphicons_halflings_regular_ttf,
@@ -166,25 +175,27 @@ type _bintree_t struct {
 }
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"data": &_bintree_t{nil, map[string]*_bintree_t{
+		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
+		}},
+		"glyphicons-halflings-regular.eot": &_bintree_t{data_glyphicons_halflings_regular_eot, map[string]*_bintree_t{
+		}},
+		"libs.js": &_bintree_t{data_libs_js, map[string]*_bintree_t{
+		}},
 		".DS_Store": &_bintree_t{data_ds_store, map[string]*_bintree_t{
 		}},
 		"app.css": &_bintree_t{data_app_css, map[string]*_bintree_t{
 		}},
-		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
+		"app_services.js": &_bintree_t{data_app_services_js, map[string]*_bintree_t{
 		}},
 		"glyphicons-halflings-regular.svg": &_bintree_t{data_glyphicons_halflings_regular_svg, map[string]*_bintree_t{
 		}},
 		"glyphicons-halflings-regular.ttf": &_bintree_t{data_glyphicons_halflings_regular_ttf, map[string]*_bintree_t{
 		}},
-		"libs.js": &_bintree_t{data_libs_js, map[string]*_bintree_t{
+		"glyphicons-halflings-regular.woff": &_bintree_t{data_glyphicons_halflings_regular_woff, map[string]*_bintree_t{
 		}},
 		"main.html": &_bintree_t{data_main_html, map[string]*_bintree_t{
 		}},
 		"styles.css": &_bintree_t{data_styles_css, map[string]*_bintree_t{
-		}},
-		"glyphicons-halflings-regular.eot": &_bintree_t{data_glyphicons_halflings_regular_eot, map[string]*_bintree_t{
-		}},
-		"glyphicons-halflings-regular.woff": &_bintree_t{data_glyphicons_halflings_regular_woff, map[string]*_bintree_t{
 		}},
 	}},
 }}
