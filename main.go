@@ -11,7 +11,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	//"mime"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -31,7 +30,7 @@ var (
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.94a"
+const VERSION = "0.94b"
 
 type File struct {
 	Name    string
