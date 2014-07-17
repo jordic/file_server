@@ -24,7 +24,8 @@ module.exports = function(grunt) {
           // Task-specific options go here.
             },
             all: {
-            src: ["../css/codemirror.css", "../css/monokai.css", "../css/bootstrap.css", 
+            src: ["../css/codemirror.css", "../css/monokai.css", "../css/font-awesome.css",
+                "../css/bootstrap.css", 
                 "../css/select2.css", "../css/ui-select.css"],
             dest: "../styles.css"
             },

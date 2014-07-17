@@ -51,12 +51,18 @@ fMgr.service('Flash', function($timeout){
     var $scope;
     var duration = 3000
 
-    function message(type, msg) {
-    
+    function message(type, msg, dur) {
+
+        if(dur) {
+            d = dur
+        } else {
+            d = duration
+        }
+
         $scope.flash = { type:type, message:msg }
         $timeout(function(){ 
             $scope.flash = undefined
-         }, duration)
+         }, d)
     }
 
     this.scope = function(sc) {

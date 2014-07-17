@@ -47,35 +47,43 @@ func data_app_services_js() ([]byte, error) {
 	)
 }
 
-// data_glyphicons_halflings_regular_eot reads file data from disk. It returns an error on failure.
-func data_glyphicons_halflings_regular_eot() ([]byte, error) {
+// data_fontawesome_webfont_eot reads file data from disk. It returns an error on failure.
+func data_fontawesome_webfont_eot() ([]byte, error) {
 	return bindata_read(
-		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.eot",
-		"data/glyphicons-halflings-regular.eot",
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/fontawesome-webfont.eot",
+		"data/fontawesome-webfont.eot",
 	)
 }
 
-// data_glyphicons_halflings_regular_svg reads file data from disk. It returns an error on failure.
-func data_glyphicons_halflings_regular_svg() ([]byte, error) {
+// data_fontawesome_webfont_svg reads file data from disk. It returns an error on failure.
+func data_fontawesome_webfont_svg() ([]byte, error) {
 	return bindata_read(
-		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.svg",
-		"data/glyphicons-halflings-regular.svg",
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/fontawesome-webfont.svg",
+		"data/fontawesome-webfont.svg",
 	)
 }
 
-// data_glyphicons_halflings_regular_ttf reads file data from disk. It returns an error on failure.
-func data_glyphicons_halflings_regular_ttf() ([]byte, error) {
+// data_fontawesome_webfont_ttf reads file data from disk. It returns an error on failure.
+func data_fontawesome_webfont_ttf() ([]byte, error) {
 	return bindata_read(
-		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.ttf",
-		"data/glyphicons-halflings-regular.ttf",
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/fontawesome-webfont.ttf",
+		"data/fontawesome-webfont.ttf",
 	)
 }
 
-// data_glyphicons_halflings_regular_woff reads file data from disk. It returns an error on failure.
-func data_glyphicons_halflings_regular_woff() ([]byte, error) {
+// data_fontawesome_webfont_woff reads file data from disk. It returns an error on failure.
+func data_fontawesome_webfont_woff() ([]byte, error) {
 	return bindata_read(
-		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/glyphicons-halflings-regular.woff",
-		"data/glyphicons-halflings-regular.woff",
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/fontawesome-webfont.woff",
+		"data/fontawesome-webfont.woff",
+	)
+}
+
+// data_fontawesome_otf reads file data from disk. It returns an error on failure.
+func data_fontawesome_otf() ([]byte, error) {
+	return bindata_read(
+		"/Users/jordi/Documents/projectes/go/src/github.com/jordic/file_server/data/FontAwesome.otf",
+		"data/FontAwesome.otf",
 	)
 }
 
@@ -129,10 +137,11 @@ var _bindata = map[string]func() ([]byte, error){
 	"data/app.css": data_app_css,
 	"data/app.js": data_app_js,
 	"data/app_services.js": data_app_services_js,
-	"data/glyphicons-halflings-regular.eot": data_glyphicons_halflings_regular_eot,
-	"data/glyphicons-halflings-regular.svg": data_glyphicons_halflings_regular_svg,
-	"data/glyphicons-halflings-regular.ttf": data_glyphicons_halflings_regular_ttf,
-	"data/glyphicons-halflings-regular.woff": data_glyphicons_halflings_regular_woff,
+	"data/fontawesome-webfont.eot": data_fontawesome_webfont_eot,
+	"data/fontawesome-webfont.svg": data_fontawesome_webfont_svg,
+	"data/fontawesome-webfont.ttf": data_fontawesome_webfont_ttf,
+	"data/fontawesome-webfont.woff": data_fontawesome_webfont_woff,
+	"data/FontAwesome.otf": data_fontawesome_otf,
 	"data/libs.js": data_libs_js,
 	"data/main.html": data_main_html,
 	"data/styles.css": data_styles_css,
@@ -177,23 +186,25 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"data": &_bintree_t{nil, map[string]*_bintree_t{
 		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
 		}},
-		"glyphicons-halflings-regular.eot": &_bintree_t{data_glyphicons_halflings_regular_eot, map[string]*_bintree_t{
+		"app_services.js": &_bintree_t{data_app_services_js, map[string]*_bintree_t{
 		}},
-		"libs.js": &_bintree_t{data_libs_js, map[string]*_bintree_t{
+		"fontawesome-webfont.eot": &_bintree_t{data_fontawesome_webfont_eot, map[string]*_bintree_t{
+		}},
+		"fontawesome-webfont.ttf": &_bintree_t{data_fontawesome_webfont_ttf, map[string]*_bintree_t{
+		}},
+		"FontAwesome.otf": &_bintree_t{data_fontawesome_otf, map[string]*_bintree_t{
+		}},
+		"main.html": &_bintree_t{data_main_html, map[string]*_bintree_t{
 		}},
 		".DS_Store": &_bintree_t{data_ds_store, map[string]*_bintree_t{
 		}},
 		"app.css": &_bintree_t{data_app_css, map[string]*_bintree_t{
 		}},
-		"app_services.js": &_bintree_t{data_app_services_js, map[string]*_bintree_t{
+		"fontawesome-webfont.svg": &_bintree_t{data_fontawesome_webfont_svg, map[string]*_bintree_t{
 		}},
-		"glyphicons-halflings-regular.svg": &_bintree_t{data_glyphicons_halflings_regular_svg, map[string]*_bintree_t{
+		"fontawesome-webfont.woff": &_bintree_t{data_fontawesome_webfont_woff, map[string]*_bintree_t{
 		}},
-		"glyphicons-halflings-regular.ttf": &_bintree_t{data_glyphicons_halflings_regular_ttf, map[string]*_bintree_t{
-		}},
-		"glyphicons-halflings-regular.woff": &_bintree_t{data_glyphicons_halflings_regular_woff, map[string]*_bintree_t{
-		}},
-		"main.html": &_bintree_t{data_main_html, map[string]*_bintree_t{
+		"libs.js": &_bintree_t{data_libs_js, map[string]*_bintree_t{
 		}},
 		"styles.css": &_bintree_t{data_styles_css, map[string]*_bintree_t{
 		}},

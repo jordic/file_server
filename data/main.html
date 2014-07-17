@@ -19,20 +19,19 @@
 
 
 
-  <body ng-controller="ListCtr">
+  <body ng-controller="ListCtr" style="position:relative">
   
+  <div  ng-show="flash.message" id="fmessage" class="{{ flash.type }}" >
+    <p>{{ flash.message }}</p>
+    </div>
 
-  <div class="container"  style="position:relative">
+  <div class="container">
     <div class="row hidden-xs">
         <div class="col-md-6">
         <h3 id="title">FileManager</h3>
         </div>
     </div>
     
-    <div  ng-show="flash.message" id="fmessage" class="{{ flash.type }}" >
-    <p>{{ flash.message }}</p>
-  </div>
-
   </div>
 <!-- controller -->
 <div class="container" id="nav">
@@ -40,14 +39,14 @@
 
 <div class="row" id="header">
 
-<div class="col-md-8" id="breadcrumb">
+<div class="col-md-8 col-sm-8" id="breadcrumb">
     <ol class="breadcrumb">
-        <li><a href="/"><span class="glyphicon glyphicon-home"> </span></a></li>
+        <li><a href="/"><i class="fa fa-home"> </i></a></li>
         <li ng-repeat="item in Rutas"><a href="{{ item.url }}">{{ item.name }}</a></li> 
     </ol>
 </div>
 
-<div class="col-md-4" ng-controller="FinderCtrl" id="finder">
+<div class="col-md-4 col-sm-4" ng-controller="FinderCtrl" id="finder">
     <form role="form">
         <ui-select type="text" ui-select2="s2opts" 
             width="100%" ng-model="item.selected"
@@ -56,7 +55,7 @@
         <ui-select-choices repeat="item in dirs"
              refresh="getData($select.search)"
              refresh-delay="0">
-             <span class="glyphicon glyphicon-folder-close dir"></span> &nbsp; /<span ng-bind-html="item.path | highlight: $select.search"> </span>
+             <i class="fa fa-folder-o dir"></i> &nbsp; /<span ng-bind-html="item.path | highlight: $select.search"> </span>
         </ui-select-choices>
       <!--<div ng-bind-html="$select.search"></div>-->
     </ui-select-choices>
@@ -78,21 +77,21 @@
     <div class="col-md-6 col-xs-6">
         
         <inline-modal action="createFolder" btntext="Add Folder" 
-            icon="glyphicon-folder-open" title="Folder Name:" handler="get_data()" 
+            icon="fa fa-folder-open" title="Folder Name:" handler="get_data()" 
             message="Folder created Created!" path="Path"></inline-modal>
         
         <button type="button" class="btn btn-info btn-sm" type="file" ng-click="AddFiles()"
-        tooltip-placement="top" tooltip="Upload Multiple Files"><span class="glyphicon glyphicon-plus"> </span> <span class="hidden-xs">&nbsp; Upload</span></button>
+        tooltip-placement="top" tooltip="Upload Multiple Files"><i class="fa fa-upload"> </i> <span class="hidden-xs">&nbsp; Upload</span></button>
 
         
         <inline-modal action="new_file" btntext="Add File" 
-            icon="glyphicon-file" title="Filename:" handler="get_data()" 
+            icon="fa fa-file" title="Filename:" handler="get_data()" 
             message="File Created!" path="Path"></inline-modal>
 
         &nbsp;&nbsp;&nbsp;
         
         <button class="btn btn-danger btn-sm" ng-show="selected>0" ng-click="DeleteSelected()"
-            tooltip-placement="top" tooltip="Delete selected"><span class="glyphicon glyphicon-trash"> </span></button>
+            tooltip-placement="top" tooltip="Delete selected"><i class="fa fa-trash-o"> </i></button>
 
         
 
@@ -106,12 +105,12 @@
                     ng-click="filter('all')">All</button>
                 <button type="button" 
                     tooltip-placement="top" tooltip="Show only folders"
-                    class="btn ng-class: check_tipo('folder');" ng-click="filter('folder')"><span class="glyphicon glyphicon-folder-open"> </span></button>
+                    class="btn ng-class: check_tipo('folder');" ng-click="filter('folder')"><i class="fa fa-folder"> </i></button>
                 <button type="button" 
                     tooltip-placement="top" tooltip="Show only files"
-                    class="btn ng-class: check_tipo('files');" ng-click="filter('files')"><span class="glyphicon glyphicon-file"> </span></button>
+                    class="btn ng-class: check_tipo('files');" ng-click="filter('files')"><i class="fa fa-file-o"> </i></button>
                 <button type="button" class="btn ng-class: check_tipo('hidden');"  ng-click="filter('hidden')" 
-                    tooltip-placement="top" tooltip="Show Hidden"><span class="glyphicon glyphicon-eye-open"> </span></button>
+                    tooltip-placement="top" tooltip="Show Hidden"><i class="fa fa-lock"> </i></button>
             </div>
             
             <input ng-model="query" class="form-control input-sm" placeholder="Filter" style="width:45%; float:right; margin-right:15px" id="filter">
@@ -139,8 +138,8 @@
             <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat>
                 <td width="20" class="hidden-xs"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
                     ng-click="CheckboxToggle(this, $event)" /></td>
-                <td width="20"><span class="glyphicon glyphicon-folder-open" ng-show="item.IsDir"></span>
-                        <span ng-hide="item.IsDir" class="glyphicon glyphicon-file"></span></td>
+                <td width="20"><i class="fa fa-folder-o" ng-show="item.IsDir"></i>
+                        <i ng-hide="item.IsDir" class="fa fa-file-o"></i></td>
                 
                 <td inline-edit item="item" path="Path"> </td>
                 
@@ -156,7 +155,7 @@
                     
                     <div class="btn-group" dropdown>
                         <a href class="dropdown-toggle">
-                            <span class="glyphicon glyphicon-align-justify"> </span>
+                            <i class="fa fa-bars"> </i>
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a ng-click="CopyFile(item.Name)" href="#">Copy</a></li>
@@ -170,7 +169,7 @@
 
                     </div>
 
-                    <span ng-if="item.IsText" ng-click="EditFile(item.Name)" class="glyphicon glyphicon-pencil delete hidden-xs" tooltip-placement="top" tooltip="Edit" > </span>
+                    <span ng-if="item.IsText" ng-click="EditFile(item.Name)" class="fa fa-pencil delete hidden-xs" tooltip-placement="top" tooltip="Edit" > </span>
 
                 </td>
             </tr>
@@ -191,8 +190,8 @@
         <p>{{ currentEditedFile }}</p>
     </div>
     <div class="col-md-6 pull-right text-right col-xs-6">
-        <button type="button" class="btn btn-info btn-sm" ng-click="ToView('main')"><span class="glyphicon glyphicon-arrow-left"> </span><sapn class="hidden-xs"> &nbsp; Back</sapn></button>
-        <button type="button" class="btn btn-info btn-sm" ng-click="SaveFile()"><span class="glyphicon glyphicon-floppy-disk"> </span><span class="hidden-xs"> &nbsp; Save</span></button>
+        <button type="button" class="btn btn-info btn-sm" ng-click="ToView('main')"><i class="fa fa-step-backward"> </i><sapn class="hidden-xs"> &nbsp; Back</sapn></button>
+        <button type="button" class="btn btn-info btn-sm" ng-click="SaveFile()"><i class="fa fa-save"> </i><i class="hidden-xs"> &nbsp; Save</span></button>
         
     </div>
     </form>
@@ -224,7 +223,7 @@
 
 <script type="text/ng-template" id="/inline-modal.html">
     <button class="btn btn-info btn-sm" ng-click="ClickButton()">
-        <span class="glyphicon {{ icon }}"> </span><span class="hidden-xs">&nbsp; {{ btntext }}</span></button>
+        <span class="{{ icon }}"> </span><span class="hidden-xs">&nbsp; {{ btntext }}</span></button>
 
     <div ng-show="folder_popover==true" class="popover bottom am-flip-x" 
         style="position:absolute; width:200px; display:block">
