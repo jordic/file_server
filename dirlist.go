@@ -11,6 +11,7 @@ import (
 
 var dirlist *fuzzyfs.DirList
 
+//@todo change to an init function...
 func init() {
 
 	dirlist = fuzzyfs.NewDirList()

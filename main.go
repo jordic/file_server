@@ -26,16 +26,12 @@ var (
 	port    string
 	logging bool
 	depth   int
-	// directory indexin
-
 )
-
-//var store = sessions.NewCookieStore([]byte("keysecret"))
 
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.93b"
+const VERSION = "0.94a"
 
 type File struct {
 	Name    string
@@ -83,8 +79,6 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
-	//mux.Handle("/-/libs.js", http.ServeFile(w, r, Asset("libs.js")))
-
 	mux.Handle("/-/assets/", http.HandlerFunc(serve_statics))
 
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
