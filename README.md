@@ -3,7 +3,7 @@
 ![screenshot](builds/screenshot.gif)
 
 #### Features
-
+- Mobile UI with almost all "usable displays", android and ios ( on ios, can't upload files)
 - Fast UI. Json + angular
 - Directory fuzzy search / Acces
 - Inline search ( current list )
@@ -16,17 +16,19 @@
     + PUT /dir file
     + GET /dir &format=json
 - Download dirs as zip    
+- File stream of videos and music.
 
 #### Install
 
 Donwload a binary build: (Stable)
 
-- [Osx 64bits](builds/file_server_osx)
+- [Osx 64bits](builds/file_server_darwin_amd64)
 - [Linux 64bits](builds/file_server_linux_amd64)
 
 Or compile it:
 ```go
 go get github.com/jordic/fileserver
+
 go build or go install
 ```
 
