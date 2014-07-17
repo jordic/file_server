@@ -64,6 +64,8 @@ body { font-family:Arial; font-size:12px }
 
     i.fa { font-size:14px; }
 
+    i { font-style: normal; }
+
 #fmessage { background-color:#000; border-radius:5px; 
             position:fixed;  top:-2px; left:30%; width:40%;  
             color:#fff; z-index:50; opacity:0.6;

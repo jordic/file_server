@@ -220,19 +220,27 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
 
     
+    var ieditor
 
     // Editor
     $scope.editorOptions = {
         lineWrapping : true,
         lineNumbers: true,
         keyMap: 'sublime',
-        //theme: 'monokai'
+        //theme: 'default'
+        theme: 'monokai'
+        //mode: 'javascript'
     };
 
     $scope.EditFile = function(item) {
         $scope.currentEditedFile = $scope.Path + item
         var file = $scope.Path + item
         var noJsonTransform = function(data) { return data; };
+        
+        var m = determine_editor_mode(item, $scope.Path)
+        //ieditor.setOption("mode", m)
+
+        //console.log(CodeMirror.modes)
 
         $http.get( file, {
             transformResponse: noJsonTransform}).then(function(d){
@@ -241,13 +249,20 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             $scope.EditorOldContent = $scope.EditorCurrentContent
             $scope.EditorRefresh = true
             $scope.view = 'edit'
-            $scope.$apply()
-            $scope.EditorInstance.refresh()
+            
+            //console.log(mode)
+            //$scope.editorOptions.mode = mode
+            $scope.EditorInstance.setOption("mode", m)
+            //$scope.$apply()
+            $timeout(function() {
+                $scope.EditorInstance.refresh()
+            }, 0)
 
+            
         })
         
     }
-
+    var _ed
     $scope.codemirrorLoaded = function(_editor){
         // Editor part
         $scope.EditorInstance = _editor;
@@ -365,6 +380,21 @@ fMgr.controller("FinderCtrl", function($scope, $http, $location){
 
 
 
+function determine_editor_mode( file, sp ) {
 
+    if(file.indexOf('.js') != -1 || file.indexOf('.json') != -1 )
+        return "javascript";
+
+    //if(file.indexOf('.php') != -1) return "php";
+    //if(file.indexOf('.htm') != -1) return "htmlmixed";
+    if(file.indexOf('.css') != -1) return "css";
+    if(file.indexOf('.php') != -1) return "php";
+    if(file.indexOf('.html') != -1) return "htmlmixed";
+    if(file.indexOf('.md') != -1) return "markdown";
+
+    var test = sp + file
+    if(test.indexOf('nginx') != -1) return "nginx";
+
+}
 
 
