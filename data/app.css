@@ -72,6 +72,8 @@ body { font-family:Arial; font-size:12px }
 #fmessage p { padding:10px; text-align:center;
             margin:0px; }
 
+    #bt_action { line-height:1.7; }
+
 
     @media(max-width:767px){ 
         td.actions { width:30px; }

@@ -49,6 +49,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                 Flash.duration(10000).error( "Server Disconnected" )
             })
         $scope.view = 'main'
+        $scope.query = ''
     }
     $scope.get_data = get_data
     get_data()

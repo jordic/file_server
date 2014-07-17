@@ -39,11 +39,15 @@
 
 <div class="row" id="header">
 
+
 <div class="col-md-8 col-sm-8" id="breadcrumb">
+    
+    
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-home"> </i></a></li>
         <li ng-repeat="item in Rutas"><a href="{{ item.url }}">{{ item.name }}</a></li> 
     </ol>
+    
 </div>
 
 <div class="col-md-4 col-sm-4" ng-controller="FinderCtrl" id="finder">
