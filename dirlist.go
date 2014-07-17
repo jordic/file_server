@@ -11,10 +11,11 @@ import (
 
 var dirlist *fuzzyfs.DirList
 
+//@todo change to an init function...
 func init() {
 
 	dirlist = fuzzyfs.NewDirList()
-	dirlist.MaxDepth = 3
+	dirlist.MaxDepth = 4
 	dirlist.PathSelect = fuzzyfs.DirsAndSymlinksAsDirs
 
 }
@@ -28,7 +29,7 @@ func Build_index(path string) {
 		panic(err)
 	}
 	endTime := time.Now()
-	log.Printf("%d entries. time index .. %s", dirlist.Length(), endTime.Sub(startTime))
+	log.Printf("%d entries. time index .. %s", dirlist.Length, endTime.Sub(startTime))
 
 }
 
@@ -44,12 +45,18 @@ func SearchHandle(w http.ResponseWriter, r *http.Request) {
 
 	res := dirlist.Query(query, 2)
 	//fmt.Printf("%#v", res)
-	out, err := json.Marshal(res)
+	cut := len(res)
+	if cut > 10 {
+		cut = 9
+	}
+
+	out, err := json.Marshal(res[0:cut])
 
 	if err != nil {
 		log.Printf("error encoding results... ", err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	//fmt.Fprint(w, out)
 	w.Write(out)
 	return

@@ -1,0 +1,109 @@
+body { font-family:Arial; font-size:12px }
+    .list .glyphicon { margin-right:5px; color:grey; font-size:12px }
+    .list .glyphicon-folder-open { color:#2a8dc4; }
+    #title { color:#2a8dc4; font-size:16px; }
+
+    #file_list li { padding-bottom:8px; margin-bottom:8px; list-style: none; border-bottom: 1px solid #eaeaea; }
+    
+    /* table sort */
+    th.tablesort-sortable {-webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -o-user-select: none; user-select: none; cursor: pointer; }
+    table .tablesort-sortable:after{content:""; float:right; margin-top:7px; visibility:hidden; border-left:4px solid transparent; border-right:4px solid transparent; border-top:none; border-bottom:4px solid #000; }
+    table .tablesort-desc:after{border-top:4px solid #000; border-bottom:none; } 
+    table .tablesort-asc,table .tablesort-desc{ background-color:rgba(141, 192, 219, 0.25); }
+    table .tablesort-sortable:hover:after, table .tablesort-asc:after, table .tablesort-desc:after {visibility:visible; }
+    .showIfLast {display: none; }
+    /* Only show it if it is also the last row of the table. */
+    .showIfLast:last-child {display: table-row; }
+    .showIfLast td {text-align: center; }
+    .showIfLast td:after {content: "No data"; }
+
+    thead td { font-weight:bold; }
+    .dir, .delete { cursor:pointer; }
+    .btn:focus {outline: none; }
+    #fmessage2 { position: absolute; z-index: 50; top: 10px; display: block; right: 10px; 
+        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.26);
+            background: #134166; min-height: 38px; min-width: 288px; padding: 8px 24px 0px; color: #666; border-radius: 2px;
+        opacity: 1; font-size: 14px; }
+
+    #fmessage2.bg-danger { background-color:#f2dede; margin:0px; }
+    #fmessage2.bg-success { background-color:#dff0d8; margin:0px; }
+
+
+    #editor { min-height:400px; height:80%; }
+    .mtop { margin-top:15px; }
+
+    .CodeMirror { font-family: 'Menlo', 'Iconsolata', 'Monaco', monospace; 
+        font-size:12px;  height: 600px; line-height:16px; 
+        border:1px solid #eaeaea;  }
+
+    .rename { font-size:11px; color:green; display:block; 
+        float:right; margin-right:10px;  }
+    .tdrename { cursor:pointer; position:relative; }
+    .tdrename:hover {  }
+    .renameinput { position:absolute;z-index:5; background-color:#fff; top:3px; left:-3px;  }
+    .renameinput input:focus { outline: none }
+    .renameinput input { border:1px solid #eaeaea;
+        width:80%; height:20px; background-color:#eaeaea; margin-top:5px; }
+    .renameinput button { position:absolute; left:81%; top:4px; }
+    .renameinput button.btn-default { position:absolute; left:88%; top:4px; }
+
+    .list { margin-top:15px; }
+    .table tr>td.actions { width:40px; }
+    .table > thead > tr > td { padding:4px; }
+
+    #finder button, #finder input  { background-color:#DFF0F5; 
+        border-color:#DFF0F5; color:#000; }
+    #finder .pt { position:absolute; top:35%; right:15px; }
+    #finder input, #finder button, #finder li { font-size:12px; color:#047FC4; }
+    .ui-select-highlight { color:#005E4B; }
+
+    /* custom popovers */
+    .popover.bottom > .arrow { left:15px; }
+
+    .loading { opacity:0.5; }
+
+    i.fa { font-size:14px; }
+
+    i { font-style: normal; }
+
+#fmessage { background-color:#000; border-radius:5px; 
+            position:fixed;  top:-2px; left:30%; width:40%;  
+            color:#fff; z-index:50; opacity:0.6;
+            box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.26);
+        }
+#fmessage p { padding:10px; text-align:center;
+            margin:0px; }
+
+    #bt_action { line-height:1.7; }
+
+
+    @media(max-width:767px){ 
+        td.actions { width:30px; }
+        thead td { font-size:11px; }
+        .table thead > tr > td { padding:3px 8px 3px 8px; }
+        #filter { display:none; }
+        .breadcrumb { margin-bottom:5px; background-color:#fff; margin-left:0px; 
+            font-size:14px; padding-left:0px; margin-top:10px; }
+        ol { background-color:#fff; }
+        .form-control { font-size:12px }
+        #finder { width:100%; margin-bottom:5px; }
+        #finder .btn { font-size:12px;   }
+        #list .dropdown-menu { left:-145px; }
+        #list .dropdown-menu li { font-size:12px; }
+        .renameinput { width:100%; }
+        .renameinput input { width: 55%; }
+        .renameinput button { left:58% }
+        .renameinput button.btn-default { left:72%; }
+
+        #list button { font-size:11px; padding:2px 6px; }
+
+        #fmessage { background-color:#000; border-radius:5px; 
+            position:fixed;  top:90%; left:20%; width:60%;  
+            color:#fff; z-index:50; opacity:0.6;
+        }
+        #fmessage p { padding:10px; text-align:center;
+            margin:0px; }
+    }
+
+
+ 

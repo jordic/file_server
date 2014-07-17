@@ -2,22 +2,20 @@ package main
 
 import (
 	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
-	//"github.com/gorilla/sessions"
+	"github.com/jordic/file_server/util"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path"
 	"path/filepath"
-	//	"runtime/pprof"
-	"github.com/jordic/file_server/util"
-
-	_ "net/http/pprof"
 	"strings"
 	"time"
 )
@@ -26,16 +24,13 @@ var (
 	dir     string
 	port    string
 	logging bool
-	// directory indexin
-
+	depth   int
 )
-
-//var store = sessions.NewCookieStore([]byte("keysecret"))
 
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.93a"
+const VERSION = "0.94b"
 
 type File struct {
 	Name    string
@@ -56,6 +51,8 @@ func main() {
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
+	//flag.IntVar(&depth, "depth", 5, "Depth directory crwaler")
+
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
 	flag.Parse()
@@ -81,12 +78,41 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
-	mux.Handle("/-/api/dirs", http.HandlerFunc(SearchHandle))
+	mux.Handle("/-/assets/", http.HandlerFunc(serve_statics))
 
-	mux.Handle("/", http.HandlerFunc(handleReq))
+	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
+
+	mux.Handle("/", makeGzipHandler(http.HandlerFunc(handleReq)))
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 
+}
+
+type AssetDownload struct {
+	*bytes.Reader
+	io.Closer
+}
+
+func NewAssetDownload(a []byte) *AssetDownload {
+	return &AssetDownload{
+		bytes.NewReader(a),
+		ioutil.NopCloser(nil),
+	}
+}
+
+func serve_statics(w http.ResponseWriter, r *http.Request) {
+
+	file := r.URL.Path[10:]
+
+	by, err := Asset("data/" + file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	asset := NewAssetDownload(by)
+	http.ServeContent(w, r, file, time.Now(), asset)
+	return
 }
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
@@ -129,6 +155,8 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	// handle json format of dir...
 	if r.FormValue("format") == "json" {
+
+		w.Header().Set("Content-Type", "application/json")
 		result := &DirJson{w, d}
 		err := result.Get()
 		if err != nil {
@@ -147,12 +175,17 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we dont receive json param... we are asking, for genric app ui...
-	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(templateList))
+	template_file, err := Asset("data/main.html")
+	if err != nil {
+		log.Fatalf("Cant load template main")
+	}
+
+	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(string(template_file)))
 	v := map[string]interface{}{
 		"Path":    r.URL.Path,
 		"version": VERSION,
 	}
-
+	w.Header().Set("Content-Type", "text/html")
 	t.Execute(w, v)
 
 }

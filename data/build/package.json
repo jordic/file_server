@@ -1,0 +1,16 @@
+{
+  "name": "file_server.js",
+  "version": "0.9.4",
+  "description": "golang file server",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt-concat-css": "^0.3.1",
+    "grunt-contrib-concat": "^0.4.0",
+    "grunt-contrib-uglify": "^0.5.0"
+  }
+}

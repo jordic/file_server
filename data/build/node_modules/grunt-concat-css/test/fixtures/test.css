@@ -1,0 +1,8 @@
+body: {
+  background-color: #EFEFEF;
+  background-image: url(http://somewebsite.com/pix.jpg);
+}
+
+.header: {
+  background-image: url(assets/images/pix.jpg);
+}

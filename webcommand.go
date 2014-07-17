@@ -56,7 +56,7 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("command executed %s", wc.Command)
-
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 	return
 }

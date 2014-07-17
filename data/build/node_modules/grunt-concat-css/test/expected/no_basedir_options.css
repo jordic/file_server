@@ -1,0 +1,23 @@
+@import url('./test/fixtures/fineprint.css') print;
+@import url('./test/fixtures/bluish.css') projection, tv;
+@import url('./test/fixtures/custom.css');
+@import url("chrome://communicator/skin/");
+@import url('./test/fixtures/common.css') screen, projection;
+@import url('./test/fixtures/landscape.css') screen and (orientation:landscape);
+@import url('http://anotherwebsite.com/magic.css') screen and (orientation:landscape);
+body: {
+  background-color: #EFEFEF;
+  background-image: url(http://somewebsite.com/pix.jpg);
+}
+
+.header: {
+  background-image: url('./test/fixtures/assets/images/pix.jpg');
+}
+/*
+ * Samples taken from MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/@import;
+ */
+
+/* Other samples */
+.component_a {
+  background: url('./test/fixtures/component_a/images/nasty-texture.png');
+}
