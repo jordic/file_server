@@ -2,7 +2,6 @@ package main
 
 import (
 	"archive/zip"
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -40,8 +39,6 @@ type File struct {
 	IsDir   bool
 	IsText  bool
 }
-
-var ModTime = time.Now()
 
 func main() {
 
@@ -82,41 +79,19 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
-	mux.Handle("/-/assets/", makeGzipHandler(http.HandlerFunc(serve_statics)))
+
+	statics := &ServeStaticFromBinary{
+		MountPoint: "/-/assets/",
+		DataDir:    "data/"}
+
+	mux.Handle("/-/assets/", makeGzipHandler(statics.ServeHTTP))
+
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
 	mux.Handle("/", BasicAuth(makeGzipHandler(http.HandlerFunc(handleReq)), auth))
 
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 
-}
-
-type AssetDownload struct {
-	*bytes.Reader
-	io.Closer
-}
-
-func NewAssetDownload(a []byte) *AssetDownload {
-	return &AssetDownload{
-		bytes.NewReader(a),
-		ioutil.NopCloser(nil),
-	}
-}
-
-func serve_statics(w http.ResponseWriter, r *http.Request) {
-
-	file := r.URL.Path[10:]
-
-	by, err := Asset("data/" + file)
-	if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		http.NotFound(w, r)
-		return
-	}
-
-	asset := NewAssetDownload(by)
-	http.ServeContent(w, r, file, ModTime, asset)
-	return
 }
 
 func handleReq(w http.ResponseWriter, r *http.Request) {
