@@ -41,6 +41,8 @@ type File struct {
 	IsText  bool
 }
 
+var ModTime = time.Now()
+
 func main() {
 
 	//fmt.Println(len(os.Args), os.Args)
@@ -107,12 +109,13 @@ func serve_statics(w http.ResponseWriter, r *http.Request) {
 
 	by, err := Asset("data/" + file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.NotFound(w, r)
 		return
 	}
 
 	asset := NewAssetDownload(by)
-	http.ServeContent(w, r, file, time.Now(), asset)
+	http.ServeContent(w, r, file, ModTime, asset)
 	return
 }
 

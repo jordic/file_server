@@ -30,7 +30,8 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	cmd := GetCommand(wc.Command, dir)
 	if cmd == nil {
-		http.Error(w, "Command Not found", http.StatusInternalServerError)
+		//http.Error(w, "Command Not found", http.StatusInternalServerError)
+		http.NotFound(w, r)
 		log.Printf("command not found %s", wc.Command)
 		return
 	}
