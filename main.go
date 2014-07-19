@@ -26,7 +26,7 @@ var (
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.94c"
+const VERSION = "0.95a"
 
 func main() {
 

@@ -1,3 +1,16 @@
+v 095
+--
+- assets files, neede by client app, served with gzip
+- Added param for handling auth -auth="username:password"
+- Added param for defining depth of initial dir traverse --depth
+- Refactored code in Static serving
+- Refactored code in gzip handler.. for not handling image archives..
+
+
+
+v 094
+--
+- Improved ui for mobile clients
 
 
 v 093a
