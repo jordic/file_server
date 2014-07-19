@@ -25,6 +25,7 @@ var (
 	port    string
 	logging bool
 	depth   int
+	auth    string
 )
 
 //var cpuprof string
@@ -51,6 +52,7 @@ func main() {
 	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
+	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
 	//flag.IntVar(&depth, "depth", 5, "Depth directory crwaler")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
@@ -78,11 +80,10 @@ func main() {
 	go Build_index(dir)
 
 	mux := http.NewServeMux()
-	mux.Handle("/-/assets/", http.HandlerFunc(serve_statics))
-
+	mux.Handle("/-/assets/", makeGzipHandler(http.HandlerFunc(serve_statics)))
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
+	mux.Handle("/", BasicAuth(makeGzipHandler(http.HandlerFunc(handleReq)), auth))
 
-	mux.Handle("/", makeGzipHandler(http.HandlerFunc(handleReq)))
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)
 

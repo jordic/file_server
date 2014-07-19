@@ -2,6 +2,7 @@ module.exports = function(grunt) {
   
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-concat-css');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     
     grunt.initConfig({
     
@@ -15,9 +16,22 @@ module.exports = function(grunt) {
                     '../js/ui-bootstrap-tpls.min.js', '../js/others.js'
                     
                     ],
-                dest: '../libs.js'
+                dest: 'libs.js'
             }
         },
+
+        uglify: {
+            options: {
+                mangle: false
+            },
+            my_target: {
+
+                files: {
+                    '../libs.js': ['libs.js']
+                }
+            }
+        }, 
+
 
         concat_css: {
             options: {
@@ -33,6 +47,6 @@ module.exports = function(grunt) {
 
         });
 
-  grunt.registerTask('build', 'concat concat_css');
+  grunt.registerTask('build', 'concat uglify concat_css');
 
 }
