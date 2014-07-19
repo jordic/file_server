@@ -52,7 +52,7 @@ func main() {
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
-	//flag.IntVar(&depth, "depth", 5, "Depth directory crwaler")
+	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
