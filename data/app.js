@@ -14,6 +14,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
 
     $scope.IsMobile = window.is_mob()
+    $scope.SysCmdDisabled = DISABLE_SYS_COMMAND
 
     // Config flash
     Flash.scope( $scope );
@@ -368,6 +369,8 @@ fMgr.controller("ExecCtrl", function($scope, $http, $location, Path,
 
         $scope.Execute = function() {
 
+            $scope.is_executing = true
+
             if( $scope.command == "") {
                 alert("Must supply a command")
                 return
@@ -383,6 +386,7 @@ fMgr.controller("ExecCtrl", function($scope, $http, $location, Path,
             }   
 
             ServerCommand.get_raw(p).then(function(d){
+                $scope.is_executing = false
                 $scope.output = d.data.message
             })
 

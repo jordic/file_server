@@ -80,6 +80,7 @@ body { font-family:Arial; font-size:12px }
     @media(max-width:767px){ 
 
         .ngdialog.ngdialog-theme-default .ngdialog-content { width:100%; }
+        .ngdialog.ngdialog-theme-default { padding-top:20px; }
 
         td.actions { width:30px; }
         thead td { font-size:11px; }

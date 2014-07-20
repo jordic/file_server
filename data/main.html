@@ -12,7 +12,7 @@
     <script src="/-/assets/app.js"></script>
     <script>
     var APP_PATH = "[% .Path %]"
-
+    var DISABLE_SYS_COMMAND = [% .sys_command %];
     </script>
   <title>FileManager</title>
   </head>
@@ -92,7 +92,7 @@
             icon="fa fa-file" title="Filename:" handler="get_data()" 
             message="File Created!" path="Path"></inline-modal>
 
-        <button type="button" class="btn btn-info btn-sm" ng-click="ShowCommands()"
+        <button ng-hide="SysCmdDisabled==true" type="button" class="btn btn-info btn-sm" ng-click="ShowCommands()"
             tooltip-placement="top" tooltip="Execute Command"><i class="fa fa-bolt"> </i> <span class="hidden-xs">&nbsp; Exec</span></button>
 
         &nbsp;&nbsp;&nbsp;
@@ -233,12 +233,13 @@
 <form role="form" ng-controller="ExecCtrl" id="popup_exec">
     <h3>Execute command</h3>
     <label>Command</label>
-    <input type="text" class="form-control input-sm" ng-model="command" />
+    <input type="text" class="form-control input-sm" ng-model="command" ng-disabled="is_executing" />
     <label>Params</label>
-    <input type="text" class="form-control input-sm" ng-model="params" />
+    <input type="text" class="form-control input-sm" ng-model="params" ng-disabled="is_executing" />
 
     <div class="pull-right" style="margin-top:15px">
-        <button class="btn btn-info btn-sm" ng-click="Execute()">Execute</button>
+        <button class="btn btn-info btn-sm" ng-click="Execute()"
+            ng-disabled="is_executing">Execute <i ng-show="is_executing" class="fa fa-refresh fa-spin"></i></button>
     </div>
 
     <div class="clearfix"> </div>

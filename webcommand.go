@@ -28,6 +28,12 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if wc.Command == "syscmd" && disable_sys_command == true {
+		http.NotFound(w, r)
+		log.Printf("commands explicity disabled by commandline %s", wc.Command)
+		return
+	}
+
 	cmd := GetCommand(wc.Command, dir)
 	if cmd == nil {
 		//http.Error(w, "Command Not found", http.StatusInternalServerError)

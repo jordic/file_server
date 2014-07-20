@@ -16,13 +16,14 @@ import (
 )
 
 var (
-	dir          string
-	port         string
-	logging      bool
-	depth        int
-	auth         string
-	commandsFile string
-	debug        bool
+	dir                 string
+	port                string
+	logging             bool
+	depth               int
+	auth                string
+	commandsFile        string
+	debug               bool
+	disable_sys_command bool
 )
 
 //var cpuprof string
@@ -45,6 +46,7 @@ func main() {
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
 	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
 	flag.BoolVar(&debug, "debug", false, "Make external assets expire every request")
+	flag.BoolVar(&disable_sys_command, "disable_cmd", false, "Disable sys comands")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
@@ -153,8 +155,9 @@ func handleDir(w http.ResponseWriter, r *http.Request) {
 
 	t := template.Must(template.New("listing").Delims("[%", "%]").Parse(string(template_file)))
 	v := map[string]interface{}{
-		"Path":    r.URL.Path,
-		"version": VERSION,
+		"Path":        r.URL.Path,
+		"version":     VERSION,
+		"sys_command": disable_sys_command,
 	}
 	w.Header().Set("Content-Type", "text/html")
 	t.Execute(w, v)
