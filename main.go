@@ -16,11 +16,12 @@ import (
 )
 
 var (
-	dir     string
-	port    string
-	logging bool
-	depth   int
-	auth    string
+	dir          string
+	port         string
+	logging      bool
+	depth        int
+	auth         string
+	commandsFile string
 )
 
 //var cpuprof string
@@ -41,6 +42,7 @@ func main() {
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
+	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 

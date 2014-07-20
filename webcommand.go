@@ -61,3 +61,15 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(out)
 	return
 }
+
+/*
+
+[
+	{command:"name", exec:"", params:}
+]
+
+
+
+*/
+
+/*func LoadExternalCommandFile() {}*/

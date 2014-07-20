@@ -17,16 +17,13 @@ import (
 // Command represents an action on system.
 type Command struct {
 	Name       string `json:"name"`
-	Command    string
 	Params     map[string]string
 	ParamsList []string
 	Path       string
 	run        func(c *Command) int
-	// A Command can be applied to a files/files (list)/dir, dirs(list) o to nothing
-	Apply  []string `json:"apply"`
-	Stdout string
-	Stderr string
-	status int
+	Stdout     string
+	Stderr     string
+	status     int
 }
 
 func (c *Command) Run() int {
@@ -68,10 +65,8 @@ var commands = map[string]*Command{
 }
 
 var copyCommand = &Command{
-	Name:    "Copy",
-	Command: "",
-	Apply:   []string{"dir", "file"},
-	run:     copy_file,
+	Name: "Copy",
+	run:  copy_file,
 }
 
 func copy_file(c *Command) int {
@@ -108,10 +103,8 @@ func copy_file(c *Command) int {
 
 // rename command
 var renameCommand = &Command{
-	Name:    "Rename",
-	Command: "",
-	Apply:   []string{"dir", "file"},
-	run:     rename_file,
+	Name: "Rename",
+	run:  rename_file,
 }
 
 func rename_file(c *Command) int {
@@ -133,10 +126,8 @@ func rename_file(c *Command) int {
 
 // Create a dir
 var createfolderCommand = &Command{
-	Name:    "Create Folder",
-	Command: "",
-	Apply:   []string{"dir"},
-	run:     create_folder,
+	Name: "Create Folder",
+	run:  create_folder,
 }
 
 func create_folder(c *Command) int {
@@ -154,10 +145,8 @@ func create_folder(c *Command) int {
 
 // Save a File
 var saveCommand = &Command{
-	Name:    "Save File",
-	Command: "",
-	Apply:   []string{"file"},
-	run:     save_file,
+	Name: "Save File",
+	run:  save_file,
 }
 
 func save_file(c *Command) int {
@@ -175,9 +164,8 @@ func save_file(c *Command) int {
 
 // Delete a file, or list of files
 var deleteCommand = &Command{
-	Name:  "Delete File",
-	Apply: []string{"file", "files"},
-	run:   delete_file,
+	Name: "Delete File",
+	run:  delete_file,
 }
 
 func delete_file(c *Command) int {
@@ -205,9 +193,8 @@ func delete_file(c *Command) int {
 }
 
 var compressCommand = &Command{
-	Name:  "Compress Tar/gz",
-	Apply: []string{"file", "dir"},
-	run:   compress_file,
+	Name: "Compress Tar/gz",
+	run:  compress_file,
 }
 
 func compress_file(c *Command) int {
@@ -234,9 +221,8 @@ func compress_file(c *Command) int {
 }
 
 var mvCommand = &Command{
-	Name:  "Mv Command",
-	Apply: []string{"file", "dir"},
-	run:   mv_file,
+	Name: "Mv Command",
+	run:  mv_file,
 }
 
 func mv_file(c *Command) int {

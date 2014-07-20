@@ -106,8 +106,8 @@ func TestCopyFile(t *testing.T) {
 
 	cm = GetCommand("copy", p)
 	cm.Params = map[string]string{
-		"file": "test.txt",
-		"dest": "test2.txt",
+		"source": "test.txt",
+		"dest":   "test2.txt",
 	}
 	res = cm.Run()
 	if res == 1 {
