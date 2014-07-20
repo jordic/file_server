@@ -61,7 +61,7 @@ var commands = map[string]*Command{
 	"copy":         copyCommand,
 	"compress":     compressCommand,
 	"mv":           mvCommand,
-	//"sys":          sysCommand,
+	"syscmd":       sysCommand,
 }
 
 var copyCommand = &Command{
@@ -190,6 +190,30 @@ func delete_file(c *Command) int {
 	}
 	return 0
 
+}
+
+var sysCommand = &Command{
+	Name: "Exec command",
+	run:  sys_command,
+}
+
+func sys_command(c *Command) int {
+	source := c.GetPath() + c.GetPathParam("source")
+	cm := c.Params["command"]
+	args := c.ParamsList
+
+	cmd := exec.Command(cm, args...)
+	cmd.Dir = source
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+		c.Stderr = string(out)
+		return 1
+	}
+
+	c.Stdout = string(out)
+	return 0
 }
 
 var compressCommand = &Command{

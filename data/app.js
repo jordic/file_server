@@ -9,7 +9,8 @@
 
 
 fMgr.controller("ListCtr", function($scope, $http, $location, 
-        $document, $window, $timeout, ServerCommand, Flash){
+        $document, $window, $timeout, ServerCommand, Flash, 
+        ngDialog, Path){
 
 
     $scope.IsMobile = window.is_mob()
@@ -50,6 +51,9 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             })
         $scope.view = 'main'
         $scope.query = ''
+        
+        Path.Set($scope.Path);
+
     }
     $scope.get_data = get_data
     get_data()
@@ -348,7 +352,43 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         }, "Files deleted!", get_data)
     }
 
+    $scope.ShowCommands = function() {
+        ngDialog.open({ template: '/exec_command.html' });
+    }
+
     
+})
+
+fMgr.controller("ExecCtrl", function($scope, $http, $location, Path, 
+        ServerCommand){
+        
+        $scope.Path = Path.Get()
+        $scope.command = ''
+        $scope.params = ''
+
+        $scope.Execute = function() {
+
+            if( $scope.command == "") {
+                alert("Must supply a command")
+                return
+            }
+
+            var p = {
+                action: 'syscmd', 
+                params: {
+                    'source': $scope.Path,
+                    'command': $scope.command
+                },
+                paramslist: $scope.params.split(" ")
+            }   
+
+            ServerCommand.get_raw(p).then(function(d){
+                $scope.output = d.data.message
+            })
+
+
+        }
+
 })
     
 

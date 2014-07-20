@@ -65,7 +65,11 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 /*
 
 [
-	{command:"name", exec:"", params:}
+	{command:"git pull", exec:"git pull origin master", params:}
+	{command:"git commit", exec:"git commit -am", params: 'message' }
+	{command:"supervisor", exec:"restart xxx", params: 'message' }
+	{command:"service", exec:"xxx restart", params: 'message' }
+
 ]
 
 

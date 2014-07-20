@@ -28,7 +28,12 @@ func (s *ServeStaticFromBinary) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	http.ServeContent(w, r, file, ModTime, NewAssetDownload(data))
+	t := ModTime
+	if debug {
+		t = time.Now()
+	}
+
+	http.ServeContent(w, r, file, t, NewAssetDownload(data))
 }
 
 // AssetDownload for implementing reader, and closer

@@ -8,7 +8,7 @@ function is_mob() {
 
 
 var fMgr = angular.module('fMgr', ['tableSort', 'ui.bootstrap', 
-        'ui.codemirror', 'tempoModule', 'ui.select', 'ngSanitize']);
+        'ui.codemirror', 'tempoModule', 'ui.select', 'ngSanitize', 'ngDialog']);
 
 fMgr.config(['$locationProvider', function($locationProvider){
     $locationProvider.html5Mode(true);
@@ -83,6 +83,14 @@ fMgr.service('Flash', function($timeout){
         message("bg-danger", msg)        
     }
 
+}).service('Path', function(){
+    this.path = ''
+    this.Get = function() {
+        return this.path
+    }
+    this.Set = function(p) {
+        this.path = p
+    }
 })
 
 fMgr.factory('ServerCommand', function($http, $q, Flash){

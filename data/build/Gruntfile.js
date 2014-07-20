@@ -13,7 +13,8 @@ module.exports = function(grunt) {
                 src: ['../js/codemirror.js', '../js/jquery-1.11.0.min.js', 
                     '../js/select2.min.js', '../js/bootstrap.min.js', 
                     '../js/angular.min.js', '../js/angular-sanitize.js',
-                    '../js/ui-bootstrap-tpls.min.js', '../js/others.js'
+                    '../js/ui-bootstrap-tpls.min.js', '../js/others.js', 
+                    'bower_components/ngDialog/js/ngDialog.min.js'
                     
                     ],
                 dest: 'libs.js'
@@ -40,7 +41,10 @@ module.exports = function(grunt) {
             all: {
             src: ["../css/codemirror.css", "../css/monokai.css", "../css/font-awesome.css",
                 "../css/bootstrap.css", 
-                "../css/select2.css", "../css/ui-select.css"],
+                "../css/select2.css", "../css/ui-select.css",
+                "bower_components/ngDialog/css/ngDialog.min.css",
+                "bower_components/ngDialog/css/ngDialog-theme-default.min.css"
+                ],
             dest: "../styles.css"
             },
         }

@@ -22,6 +22,7 @@ var (
 	depth        int
 	auth         string
 	commandsFile string
+	debug        bool
 )
 
 //var cpuprof string
@@ -43,6 +44,7 @@ func main() {
 	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
 	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
+	flag.BoolVar(&debug, "debug", false, "Make external assets expire every request")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 

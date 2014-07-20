@@ -92,6 +92,9 @@
             icon="fa fa-file" title="Filename:" handler="get_data()" 
             message="File Created!" path="Path"></inline-modal>
 
+        <button type="button" class="btn btn-info btn-sm" ng-click="ShowCommands()"
+            tooltip-placement="top" tooltip="Execute Command"><i class="fa fa-bolt"> </i> <span class="hidden-xs">&nbsp; Exec</span></button>
+
         &nbsp;&nbsp;&nbsp;
         
         <button class="btn btn-danger btn-sm" ng-show="selected>0" ng-click="DeleteSelected()"
@@ -224,6 +227,27 @@
     
 
   </body>
+
+<script type="text/ng-template" id="/exec_command.html">
+
+<form role="form" ng-controller="ExecCtrl" id="popup_exec">
+    <h3>Execute command</h3>
+    <label>Command</label>
+    <input type="text" class="form-control input-sm" ng-model="command" />
+    <label>Params</label>
+    <input type="text" class="form-control input-sm" ng-model="params" />
+
+    <div class="pull-right" style="margin-top:15px">
+        <button class="btn btn-info btn-sm" ng-click="Execute()">Execute</button>
+    </div>
+
+    <div class="clearfix"> </div>
+    <label>Output</label>
+    <textarea class="form-control input-sm" rows="15" ng-model="output" wrap="off"></textarea>
+</form>
+
+</script>
+
 
 <script type="text/ng-template" id="/inline-modal.html">
     <button class="btn btn-info btn-sm" ng-click="ClickButton()">

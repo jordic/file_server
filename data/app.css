@@ -59,25 +59,28 @@ body { font-family:Arial; font-size:12px }
 
     /* custom popovers */
     .popover.bottom > .arrow { left:15px; }
-
     .loading { opacity:0.5; }
-
     i.fa { font-size:14px; }
-
     i { font-style: normal; }
-
-#fmessage { background-color:#000; border-radius:5px; 
+    #fmessage { background-color:#000; border-radius:5px; 
             position:fixed;  top:-2px; left:30%; width:40%;  
             color:#fff; z-index:50; opacity:0.6;
             box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.26);
         }
-#fmessage p { padding:10px; text-align:center;
+    #fmessage p { padding:10px; text-align:center;
             margin:0px; }
 
     #bt_action { line-height:1.7; }
 
+    .ngdialog.ngdialog-theme-default .ngdialog-content { width:800px; }
+    #popup_exec textarea, #popup_exec input { font-family:'Menlo', 'Iconsolata', 'Monaco'; }
+    #popup_exec textarea { background-color:#000; color:#fff; }
+    #popup_exec h3 { font-size:16px; margin-top:5px; font-weight:bold; color:#2a8dc4;}
 
     @media(max-width:767px){ 
+
+        .ngdialog.ngdialog-theme-default .ngdialog-content { width:100%; }
+
         td.actions { width:30px; }
         thead td { font-size:11px; }
         .table thead > tr > td { padding:3px 8px 3px 8px; }
