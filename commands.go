@@ -249,7 +249,7 @@ func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
 	cmd := exec.Command(command, args...)
 	cmd.Dir = path + source
 
-	stdout, err := cmd.StdoutPipe()
+	stdout, err := cmd.StderrPipe()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -265,7 +265,7 @@ func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
 
 	go func() {
 		for {
-			b := make([]byte, 1024)
+			b := make([]byte, 8)
 			_, err := bufin.Read(b)
 			if err != nil {
 				//fmt.Print()
