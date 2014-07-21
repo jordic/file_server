@@ -2,13 +2,17 @@ package main
 
 import (
 	//"errors"
-	//"io"
+	"io"
 	"io/ioutil"
+	//	"log"
 	"os"
 	"os/exec"
 	//"strconv"
+	//"bytes"
+	"bufio"
 	"fmt"
 	"github.com/opesun/copyrecur"
+	"net/http"
 	"path/filepath"
 	"strings"
 )
@@ -214,6 +218,72 @@ func sys_command(c *Command) int {
 
 	c.Stdout = string(out)
 	return 0
+}
+
+type flushWriter struct {
+	f http.Flusher
+	w io.Writer
+}
+
+func (fw *flushWriter) Write(p []byte) (n int, err error) {
+	n, err = fw.w.Write(p)
+	if fw.f != nil {
+		fw.f.Flush()
+	}
+	return
+}
+
+func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	path := strings.TrimRight(dir, "/") + "/"
+	source := strings.Trim(wc.Params["source"], "/")
+	command := wc.Params["command"]
+	args := wc.ParamsList
+
+	fw := flushWriter{w: w}
+	if f, ok := w.(http.Flusher); ok {
+		fw.f = f
+	}
+
+	cmd := exec.Command(command, args...)
+	cmd.Dir = path + source
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println(err)
+	}
+	/*stderr, err := cmd.StderrPipe()
+	if err != nil {
+		fmt.Println(err)
+	}*/
+
+	//cmd.Stdout = &fw
+	//cmd.Stderr = &fw
+	cmd.Start()
+	bufin := bufio.NewReader(stdout)
+
+	go func() {
+		for {
+			b := make([]byte, 1024)
+			_, err := bufin.Read(b)
+			if err != nil {
+				//fmt.Print()
+				break
+			}
+			//fmt.Print(string(b))
+			fw.Write(b)
+		}
+	}()
+	//go func() {
+	//var buf bytes.Buffer
+	//go io.Copy(&fw, stdout)
+	//go io.Copy(&fw, stderr)
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Print(err)
+	}
+	return
 }
 
 var compressCommand = &Command{

@@ -81,7 +81,7 @@ func main() {
 	mux.Handle("/-/assets/", makeGzipHandler(statics.ServeHTTP))
 
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
-	mux.Handle("/", BasicAuth(makeGzipHandler(http.HandlerFunc(handleReq)), auth))
+	mux.Handle("/", BasicAuth(http.HandlerFunc(handleReq), auth))
 
 	log.Printf("Listening on port %s .....", port)
 	http.ListenAndServe(port, mux)

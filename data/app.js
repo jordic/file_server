@@ -361,7 +361,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 })
 
 fMgr.controller("ExecCtrl", function($scope, $http, $location, Path, 
-        ServerCommand){
+        ServerCommand, $interval, $timeout){
         
         $scope.Path = Path.Get()
         $scope.command = ''
@@ -385,10 +385,43 @@ fMgr.controller("ExecCtrl", function($scope, $http, $location, Path,
                 paramslist: $scope.params.split(" ")
             }   
 
-            ServerCommand.get_raw(p).then(function(d){
+            /*ServerCommand.get_raw(p).then(function(d){
                 $scope.is_executing = false
-                $scope.output = d.data.message
-            })
+
+                $scope.output = d.data
+            })*/
+
+            var t = $interval(function(){
+                //$scope.output = result
+                $scope.$apply()
+            }, 1500)
+
+            var result
+            var c = new XMLHttpRequest()
+            c.onreadystatechange = function() {
+                if (this.readyState > 2) 
+                {
+                    
+                    
+                    $scope.output = this.responseText;    
+                    
+                    
+                    //$scope.$apply()
+                    //console.log('data received')
+                    //alert(response);
+                }
+                if( this.readyState == 4 ) {
+                    $interval.cancel(t)
+                    $scope.is_executing = false 
+                    $scope.output = this.responseText
+                }
+
+            }
+            
+            c.open("POST", "/")
+            c.send( angular.toJson(p) )
+
+
 
 
         }
