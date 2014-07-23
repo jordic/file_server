@@ -26,7 +26,8 @@ fMgr.directive('tfocus', function($timeout){
                //element.css('display', value ? '' : 'none');
                if(value == true)
                     $timeout(function(){
-                        element[0].focus()    
+                        element[0].focus()
+                        element[0].select()
                     }, 0)
                     
                
@@ -152,7 +153,8 @@ fMgr.factory('ServerCommand', function($http, $q, Flash){
 
 var tempoModule = angular.module('tempoModule', ['ui.bootstrap']);
 
-tempoModule.directive('inlineEdit', function($log, $location, $position, ServerCommand){
+tempoModule.directive('inlineEdit', function($log, $location, $position, 
+    ServerCommand, $timeout){
 
     return {
         templateUrl: "/inline-edit.html",
@@ -171,8 +173,6 @@ tempoModule.directive('inlineEdit', function($log, $location, $position, ServerC
         var old_path = $scope.Path + $scope.item.Name
 
         $scope.Show = function(e) {
-            //console.log(e.target.nodeName)
-            //console.log(element)
 
             if( window.is_mob() ) 
                 return
@@ -181,19 +181,27 @@ tempoModule.directive('inlineEdit', function($log, $location, $position, ServerC
                 e.stopPropagation()
                 return
             }
+            $scope.newName = $scope.item.Name
+            $scope.showrename = true
 
-            //console.log("passa")
+            //var ele = angular.element('#file_' + $scope.item.Name )
+            //ele.select()
 
-            if( $scope.showrename == true ) {
-                $scope.showrename = false
-            } else {
-                $scope.showrename = true
-            }
         }
+
+        $scope.CloseInline = function() {
+
+            $scope.showrename = false
+                //angular.element(window).off("click", closeInline)
+            }
     
         $scope.SaveItem = function() {
             
             //var old_path = $scope.Path + old_name
+            $timeout(function(){
+                $scope.item.Name = $scope.newName    
+            }, 0)
+            
             var res = $scope.Path + $scope.item.Name
 
             if( old_path == res ) return;
@@ -219,6 +227,42 @@ tempoModule.directive('inlineEdit', function($log, $location, $position, ServerC
     
 
 })
+
+tempoModule.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if(event.which === 13) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.ngEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+tempoModule.directive('ngEsc', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            //console.log(event.which)
+            if(event.which === 27) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.ngEsc);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+
+tempoModule.directive('unbindable', function(){
+    return {
+        scope: true
+    };
+});
 
 tempoModule.directive('inlineModal', function($log, $position, ServerCommand){
 
@@ -288,6 +332,10 @@ tempoModule.directive('inlineModal', function($log, $position, ServerCommand){
                 angular.element(window).off("click", closePopOver)
                 $scope.folder_popover = undefined
                 $scope.$apply()
+            }
+
+            $scope.Close = function() {
+                $scope.folder_popover = undefined
             }
 
             if($scope.folder_popover === true) {

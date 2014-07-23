@@ -29,7 +29,7 @@ var (
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.95a"
+const VERSION = "0.95b"
 
 func main() {
 
@@ -46,7 +46,7 @@ func main() {
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
 	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
 	flag.BoolVar(&debug, "debug", false, "Make external assets expire every request")
-	flag.BoolVar(&disable_sys_command, "disable_cmd", false, "Disable sys comands")
+	flag.BoolVar(&disable_sys_command, "disable_cmd", true, "Disable sys comands")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 

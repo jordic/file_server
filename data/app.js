@@ -2,7 +2,7 @@
 
 
 
-
+var ToView;
 
 
 
@@ -233,7 +233,17 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         lineNumbers: true,
         keyMap: 'sublime',
         //theme: 'default'
-        theme: 'monokai'
+        theme: 'monokai',
+        extraKeys: {
+            Esc: function() {
+                //console.log('key', $scope)
+                //$scope.ToView('main')
+                $('#editor_back').trigger('click')
+            },
+            "Ctrl-S": function(){
+                $('#editor_save').trigger('click')
+            }
+        }
         //mode: 'javascript'
     };
 
@@ -286,6 +296,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         $scope.view = view
         $scope.EditorRefresh = false
     }
+
+    //ToView = $scope.ToView;
 
     $scope.SaveFile = function(exit) {
         

@@ -145,7 +145,7 @@
             <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat>
                 <td width="20" class="hidden-xs"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
                     ng-click="CheckboxToggle(this, $event)" /></td>
-                <td width="20"><i class="fa fa-folder-o" ng-show="item.IsDir"></i>
+                <td width="20"><i class="fa fa-folder-open" ng-show="item.IsDir"></i>
                         <i ng-hide="item.IsDir" class="fa fa-file-o"></i></td>
                 
                 <td inline-edit item="item" path="Path"> </td>
@@ -197,8 +197,11 @@
         <p>{{ currentEditedFile }}</p>
     </div>
     <div class="col-md-6 pull-right text-right col-xs-6">
-        <button type="button" class="btn btn-info btn-sm" ng-click="ToView('main')"><i class="fa fa-step-backward"> </i><sapn class="hidden-xs"> &nbsp; Back</sapn></button>
-        <button type="button" class="btn btn-info btn-sm" ng-click="SaveFile()"><i class="fa fa-save"> </i><span class="hidden-xs"> &nbsp; Save</span></button>
+        <button type="button" class="btn btn-info btn-sm" ng-click="ToView('main')"
+            id="editor_back"><i class="fa fa-step-backward"> </i><sapn class="hidden-xs"> &nbsp; Back</sapn></button>
+        <button type="button" class="btn btn-info btn-sm" 
+            ng-click="SaveFile()"
+            id="editor_save"><i class="fa fa-save"> </i><span class="hidden-xs"> &nbsp; Save</span></button>
         
     </div>
     </form>
@@ -261,7 +264,10 @@
                 <div class="popover-content">
                     <input type="text" class="form-control input-sm" 
                         ng-model="filename" id="folder_field" 
-                        tfocus="folder_popover">
+                        tfocus="folder_popover"
+                        ng-enter="Process()" 
+                        ng-esc="Close()"
+                        >
                     <button type="button" ng-click="Process()" 
                         class="btn btn-info btn-sm pull-right" 
                             style="margin-top:5px; margin-bottom:5px">Add</button>
@@ -280,10 +286,15 @@
     
 
     <div class="col-md-12 renameinput inline-form" ng-show="showrename==true">
-        <input type="text" class="" name="value" 
-            ng-model="item.Name" tfocus="showrename" />
-        <button class="btn btn-info btn-xs" ng-click="SaveItem()">SAVE</button>
-        <button class="btn btn-default btn-xs" ng-click="showrename=false">CANCEL</button>
+        <input type="text" class="theinput" name="value" 
+            ng-model="newName" tfocus="showrename" 
+            ng-enter="SaveItem()" 
+            ng-esc="CloseInline()"
+             
+            id="file_{{ item.Name }}"
+            />
+        <!--<button class="btn btn-info btn-xs" ng-click="SaveItem()"><i class="fa fa-save"></i></button>
+        <button class="btn btn-default btn-xs" ng-click="showrename=false"><i class="fa fa-times"></i></button>-->
     </div>
     </td>
 </script>

@@ -60,7 +60,7 @@ body { font-family:Arial; font-size:12px }
     /* custom popovers */
     .popover.bottom > .arrow { left:15px; }
     .loading { opacity:0.5; }
-    i.fa { font-size:14px; }
+    i.fa { font-size:16px; }
     i { font-style: normal; }
     #fmessage { background-color:#000; border-radius:5px; 
             position:fixed;  top:-2px; left:30%; width:40%;  

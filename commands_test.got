@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+// +build ignore
+
 var dataDir string = "./test_data/"
 var p string
 
