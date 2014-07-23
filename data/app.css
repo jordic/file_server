@@ -77,6 +77,9 @@ body { font-family:Arial; font-size:12px }
     #popup_exec textarea { background-color:#000; color:#fff; }
     #popup_exec h3 { font-size:16px; margin-top:5px; font-weight:bold; color:#2a8dc4;}
 
+    table td:first-child { border-left:4px solid white; }
+    .selected td:first-child { border-left:4px solid #46b8da; }
+
     @media(max-width:767px){ 
 
         .ngdialog.ngdialog-theme-default .ngdialog-content { width:100%; }

@@ -142,8 +142,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat>
-                <td width="20" class="hidden-xs"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
+            <tr ng-repeat="item in Files|filter:query|filter:{'IsDir':ff}|filter:{'IsHidden':hidden}" ts-repeat id="#r{{ $index }}" ng-class="{selected: Cursor == $index}" _name="{{ item.Name }}">
+                <td width="20" class="hidden-xs cursor"><input type="checkbox" name="checkboxs[]" value="{{ item.Name }}" 
                     ng-click="CheckboxToggle(this, $event)" /></td>
                 <td width="20"><i class="fa fa-folder-open" ng-show="item.IsDir"></i>
                         <i ng-hide="item.IsDir" class="fa fa-file-o"></i></td>

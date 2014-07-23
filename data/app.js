@@ -55,6 +55,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         
         Path.Set($scope.Path);
 
+
     }
     $scope.get_data = get_data
     get_data()
@@ -369,6 +370,36 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         ngDialog.open({ template: '/exec_command.html' });
     }
 
+
+    // Key bindings
+    
+    angular.element($window).on('keydown', function(e) {
+        
+            //console.log(e.keyCode)
+            switch(e.keyCode) {
+                case 74: 
+                    $scope.Cursor++
+                    break;
+                case 75:
+                    $scope.Cursor--
+                    break;
+                case 79:
+                    var f = $('#r'+$scope.Cursor).attr('name')
+                    console.log( jQuery('#r'+$scope.Cursor).attr('_name') )
+                    //$location.path( $scope.Path + f )
+                    break;
+            }
+            var total = angular.element('tr').length - 2
+            if($scope.Cursor == total)
+                $scope.Cursor = 0
+            if($scope.Cursor == -1)
+                $scope.Cursor = total - 1
+            $scope.$apply()
+            //$scope.MoveCursor()
+    
+    });
+    $scope.Cursor = 0
+    
     
 })
 
