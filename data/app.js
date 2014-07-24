@@ -37,12 +37,19 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                 else
                     $scope.Files = res.data
               
-
+                $scope.iFiles = {}
+                $scope.idFiles = {}
+                var idc = 0;
                 angular.forEach($scope.Files, function(item){
+                    
+                    $scope.iFiles[item.Name] = item
                     item.ModTime = new Date(item.ModTime)
-                    //console.log( item.Name.indexOf(".") )
                     if(item.Name.indexOf(".") === 0) item.IsHidden = true;
                     else item.IsHidden = false
+
+                    item.Id = idc++;
+                    $scope.idFiles[item.Id] = item
+
                 })
                 $scope.Rutas = GetRuta()
                 $scope.selected = 0
@@ -375,19 +382,35 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
     
     angular.element($window).on('keydown', function(e) {
         
-            //console.log(e.keyCode)
+            console.log(e.keyCode)
             switch(e.keyCode) {
-                case 74: 
+                case 74: //j
                     $scope.Cursor++
                     break;
-                case 75:
+                case 75: //k
                     $scope.Cursor--
                     break;
-                case 79:
-                    var f = $('#r'+$scope.Cursor).attr('name')
-                    console.log( jQuery('#r'+$scope.Cursor).attr('_name') )
-                    //$location.path( $scope.Path + f )
+                case 79: //o
+                    var item = ItemFromCursor()
+                    if(item.IsDir)
+                        $location.path( $scope.Path + item.Name + "/" )      
                     break;
+                case 69: // e
+                    var item = ItemFromCursor()
+                    if(item.IsText)
+                        $scope.EditFile( item.Name )
+                    break;
+                case 88: // x
+                    var item = ItemFromCursor()
+                    var n = item.Id
+                    angular.element('#chk_'+n).trigger('click')
+                    break;
+                case 68: //d
+                    if($scope.selected > 0) {
+                        $scope.DeleteSelected()
+                    }
+                    break;
+
             }
             var total = angular.element('tr').length - 2
             if($scope.Cursor == total)
@@ -400,6 +423,13 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
     });
     $scope.Cursor = 0
     
+
+    var ItemFromCursor = function() {
+        var f = angular.element('#r'+$scope.Cursor),
+        name = f.attr("_name")
+        return $scope.iFiles[name]
+    }
+
     
 })
 
