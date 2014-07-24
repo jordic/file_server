@@ -53,8 +53,7 @@
 <div class="col-md-4 col-sm-4" ng-controller="FinderCtrl" id="finder">
     <form role="form">
         <ui-select type="text" ui-select2="s2opts" 
-            width="100%" ng-model="item.selected"
-            >
+            width="100%" ng-model="item.selected">
         <ui-select-match placeholder="Directory quick finder">/{{$select.selected.path}}</ui-select-match>
         <ui-select-choices repeat="item in dirs"
              refresh="getData($select.search)"

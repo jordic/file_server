@@ -54,6 +54,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                 $scope.Rutas = GetRuta()
                 $scope.selected = 0
 
+
             }, function(error){
                 Flash.duration(10000).error( "Server Disconnected" )
             })
@@ -61,6 +62,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         $scope.query = ''
         
         Path.Set($scope.Path);
+        $scope.Cursor = 0
 
 
     }
@@ -279,6 +281,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             //$scope.$apply()
             $timeout(function() {
                 $scope.EditorInstance.refresh()
+                $scope.EditorInstance.focus()
             }, 0)
 
             
@@ -379,10 +382,19 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
 
     // Key bindings
-    
+    $('#finder input').bind('blur', function(e){
+        console.log('bluf finder')
+        angular.element('body').trigger('click')
+    })
+
+
     angular.element($window).on('keydown', function(e) {
         
-            console.log(e.keyCode)
+            //console.log(e)
+            if (e.target.nodeName == "INPUT")
+                return
+
+            //console.log(e.keyCode)
             switch(e.keyCode) {
                 case 74: //j
                     $scope.Cursor++
@@ -410,6 +422,12 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                         $scope.DeleteSelected()
                     }
                     break;
+                case 83: // s
+                    angular.element('#finder button').trigger('click')
+                    break;    
+                case 72: // s
+                    $location.path("/")
+                    break;    
 
             }
             var total = angular.element('tr').length - 2
