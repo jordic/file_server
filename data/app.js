@@ -394,6 +394,9 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             if (e.target.nodeName == "INPUT")
                 return
 
+            if($scope.view=='edit')
+                return
+
             //console.log(e.keyCode)
             switch(e.keyCode) {
                 case 74: //j
