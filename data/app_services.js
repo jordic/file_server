@@ -149,6 +149,27 @@ fMgr.factory('ServerCommand', function($http, $q, Flash){
     }
 })
 
+fMgr.factory('Downloader', function($q) {
+    return {
+        Async: function(file) {
+            var deferred = $q.defer();
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', file, true);
+            xhr.onreadystatechange = function(e) {
+                if(this.readyState == 4 && this.status==200) {
+                    deferred.resolve(this.responseText)
+                }
+            }
+            xhr.send();
+            return deferred.promise;
+        },
+        Stream: function(file) {
+
+        }
+    }
+})
+
+
 // Directives
 
 var tempoModule = angular.module('tempoModule', ['ui.bootstrap']);

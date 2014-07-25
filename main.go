@@ -83,7 +83,10 @@ func main() {
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
 	mux.Handle("/", BasicAuth(makeGzipHandler(http.HandlerFunc(handleReq)), auth))
 
-	log.Printf("Listening on port %s .....", port)
+	log.Printf("Listening on port %s .....\n", port)
+	if debug {
+		log.Print("Serving data dir in debug mode.. no assets caching.\n")
+	}
 	http.ListenAndServe(port, mux)
 
 }
@@ -100,7 +103,9 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(r.URL.Path, "/") {
+	log.Print("Request: ", r.RequestURI)
+	// See bug #9. For some reason, don't arrive index.html, when asked it..
+	if strings.HasSuffix(r.URL.Path, "/") && r.FormValue("get_file") != "true" {
 		log.Printf("Index dir %s", r.URL.Path)
 		handleDir(w, r)
 	} else {

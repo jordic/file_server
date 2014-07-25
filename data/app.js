@@ -10,7 +10,7 @@ var ToView;
 
 fMgr.controller("ListCtr", function($scope, $http, $location, 
         $document, $window, $timeout, ServerCommand, Flash, 
-        ngDialog, Path){
+        ngDialog, Path, Downloader){
 
 
     $scope.IsMobile = window.is_mob()
@@ -259,17 +259,13 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
     $scope.EditFile = function(item) {
         $scope.currentEditedFile = $scope.Path + item
-        var file = $scope.Path + item
-        var noJsonTransform = function(data) { return data; };
-        
+        // See bug #9
+        var file = $scope.Path + item +"?get_file=true"
         var m = determine_editor_mode(item, $scope.Path)
-        //ieditor.setOption("mode", m)
-
-        //console.log(CodeMirror.modes)
 
         $http.get( file, {
-            transformResponse: noJsonTransform}).then(function(d){
-            //console.log(d)
+            transformResponse: function(data) { return data; },
+        }).then(function(d){
             $scope.EditorCurrentContent = d.data
             $scope.EditorOldContent = $scope.EditorCurrentContent
             $scope.EditorRefresh = true
