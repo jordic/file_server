@@ -175,19 +175,19 @@ type _bintree_t struct {
 }
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"data": &_bintree_t{nil, map[string]*_bintree_t{
+		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
+		}},
+		"app_services.js": &_bintree_t{data_app_services_js, map[string]*_bintree_t{
+		}},
 		"fontawesome-webfont.eot": &_bintree_t{data_fontawesome_webfont_eot, map[string]*_bintree_t{
 		}},
 		"fontawesome-webfont.svg": &_bintree_t{data_fontawesome_webfont_svg, map[string]*_bintree_t{
-		}},
-		"fontawesome-webfont.ttf": &_bintree_t{data_fontawesome_webfont_ttf, map[string]*_bintree_t{
 		}},
 		"fontawesome-webfont.woff": &_bintree_t{data_fontawesome_webfont_woff, map[string]*_bintree_t{
 		}},
 		"app.css": &_bintree_t{data_app_css, map[string]*_bintree_t{
 		}},
-		"app.js": &_bintree_t{data_app_js, map[string]*_bintree_t{
-		}},
-		"app_services.js": &_bintree_t{data_app_services_js, map[string]*_bintree_t{
+		"fontawesome-webfont.ttf": &_bintree_t{data_fontawesome_webfont_ttf, map[string]*_bintree_t{
 		}},
 		"FontAwesome.otf": &_bintree_t{data_fontawesome_otf, map[string]*_bintree_t{
 		}},

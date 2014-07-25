@@ -29,7 +29,7 @@ var (
 //var cpuprof string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.95a"
+const VERSION = "0.96b"
 
 func main() {
 
@@ -46,7 +46,7 @@ func main() {
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
 	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
 	flag.BoolVar(&debug, "debug", false, "Make external assets expire every request")
-	flag.BoolVar(&disable_sys_command, "disable_cmd", false, "Disable sys comands")
+	flag.BoolVar(&disable_sys_command, "disable_cmd", true, "Disable sys comands")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
 
@@ -83,7 +83,10 @@ func main() {
 	mux.Handle("/-/api/dirs", makeGzipHandler(http.HandlerFunc(SearchHandle)))
 	mux.Handle("/", BasicAuth(http.HandlerFunc(handleReq), auth))
 
-	log.Printf("Listening on port %s .....", port)
+	log.Printf("Listening on port %s .....\n", port)
+	if debug {
+		log.Print("Serving data dir in debug mode.. no assets caching.\n")
+	}
 	http.ListenAndServe(port, mux)
 
 }
@@ -100,7 +103,9 @@ func handleReq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(r.URL.Path, "/") {
+	log.Print("Request: ", r.RequestURI)
+	// See bug #9. For some reason, don't arrive index.html, when asked it..
+	if strings.HasSuffix(r.URL.Path, "/") && r.FormValue("get_file") != "true" {
 		log.Printf("Index dir %s", r.URL.Path)
 		handleDir(w, r)
 	} else {

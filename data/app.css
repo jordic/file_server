@@ -60,7 +60,7 @@ body { font-family:Arial; font-size:12px }
     /* custom popovers */
     .popover.bottom > .arrow { left:15px; }
     .loading { opacity:0.5; }
-    i.fa { font-size:14px; }
+    i.fa { font-size:16px; }
     i { font-style: normal; }
     #fmessage { background-color:#000; border-radius:5px; 
             position:fixed;  top:-2px; left:30%; width:40%;  
@@ -76,6 +76,9 @@ body { font-family:Arial; font-size:12px }
     #popup_exec textarea, #popup_exec input { font-family:'Menlo', 'Iconsolata', 'Monaco'; }
     #popup_exec textarea { background-color:#000; color:#fff; }
     #popup_exec h3 { font-size:16px; margin-top:5px; font-weight:bold; color:#2a8dc4;}
+
+    table td:first-child { border-left:4px solid white; }
+    .selected td:first-child { border-left:4px solid #46b8da; }
 
     @media(max-width:767px){ 
 

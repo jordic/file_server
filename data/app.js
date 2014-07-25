@@ -2,7 +2,7 @@
 
 
 
-
+var ToView;
 
 
 
@@ -10,7 +10,7 @@
 
 fMgr.controller("ListCtr", function($scope, $http, $location, 
         $document, $window, $timeout, ServerCommand, Flash, 
-        ngDialog, Path){
+        ngDialog, Path, Downloader){
 
 
     $scope.IsMobile = window.is_mob()
@@ -37,15 +37,23 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
                 else
                     $scope.Files = res.data
               
-
+                $scope.iFiles = {}
+                $scope.idFiles = {}
+                var idc = 0;
                 angular.forEach($scope.Files, function(item){
+                    
+                    $scope.iFiles[item.Name] = item
                     item.ModTime = new Date(item.ModTime)
-                    //console.log( item.Name.indexOf(".") )
                     if(item.Name.indexOf(".") === 0) item.IsHidden = true;
                     else item.IsHidden = false
+
+                    item.Id = idc++;
+                    $scope.idFiles[item.Id] = item
+
                 })
                 $scope.Rutas = GetRuta()
                 $scope.selected = 0
+
 
             }, function(error){
                 Flash.duration(10000).error( "Server Disconnected" )
@@ -54,6 +62,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         $scope.query = ''
         
         Path.Set($scope.Path);
+        $scope.Cursor = 0
+
 
     }
     $scope.get_data = get_data
@@ -233,23 +243,29 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         lineNumbers: true,
         keyMap: 'sublime',
         //theme: 'default'
-        theme: 'monokai'
+        theme: 'monokai',
+        extraKeys: {
+            Esc: function() {
+                //console.log('key', $scope)
+                //$scope.ToView('main')
+                $('#editor_back').trigger('click')
+            },
+            "Ctrl-S": function(){
+                $('#editor_save').trigger('click')
+            }
+        }
         //mode: 'javascript'
     };
 
     $scope.EditFile = function(item) {
         $scope.currentEditedFile = $scope.Path + item
-        var file = $scope.Path + item
-        var noJsonTransform = function(data) { return data; };
-        
+        // See bug #9
+        var file = $scope.Path + item +"?get_file=true"
         var m = determine_editor_mode(item, $scope.Path)
-        //ieditor.setOption("mode", m)
-
-        //console.log(CodeMirror.modes)
 
         $http.get( file, {
-            transformResponse: noJsonTransform}).then(function(d){
-            //console.log(d)
+            transformResponse: function(data) { return data; },
+        }).then(function(d){
             $scope.EditorCurrentContent = d.data
             $scope.EditorOldContent = $scope.EditorCurrentContent
             $scope.EditorRefresh = true
@@ -261,6 +277,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
             //$scope.$apply()
             $timeout(function() {
                 $scope.EditorInstance.refresh()
+                $scope.EditorInstance.focus()
             }, 0)
 
             
@@ -286,6 +303,8 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
         $scope.view = view
         $scope.EditorRefresh = false
     }
+
+    //ToView = $scope.ToView;
 
     $scope.SaveFile = function(exit) {
         
@@ -355,6 +374,77 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
     $scope.ShowCommands = function() {
         ngDialog.open({ template: '/exec_command.html' });
+    }
+
+
+    // Key bindings
+    $('#finder input').bind('blur', function(e){
+        console.log('bluf finder')
+        angular.element('body').trigger('click')
+    })
+
+
+    angular.element($window).on('keydown', function(e) {
+        
+            //console.log(e)
+            if (e.target.nodeName == "INPUT")
+                return
+
+            if($scope.view=='edit')
+                return
+
+            //console.log(e.keyCode)
+            switch(e.keyCode) {
+                case 74: //j
+                    $scope.Cursor++
+                    break;
+                case 75: //k
+                    $scope.Cursor--
+                    break;
+                case 79: //o
+                    var item = ItemFromCursor()
+                    if(item.IsDir)
+                        $location.path( $scope.Path + item.Name + "/" )      
+                    break;
+                case 69: // e
+                    var item = ItemFromCursor()
+                    if(item.IsText)
+                        $scope.EditFile( item.Name )
+                    break;
+                case 88: // x
+                    var item = ItemFromCursor()
+                    var n = item.Id
+                    angular.element('#chk_'+n).trigger('click')
+                    break;
+                case 68: //d
+                    if($scope.selected > 0) {
+                        $scope.DeleteSelected()
+                    }
+                    break;
+                case 83: // s
+                    angular.element('#finder button').trigger('click')
+                    break;    
+                case 72: // s
+                    $location.path("/")
+                    break;    
+
+            }
+            var total = angular.element('tr').length - 2
+            if($scope.Cursor == total)
+                $scope.Cursor = 0
+            if($scope.Cursor == -1)
+                $scope.Cursor = total - 1
+            $scope.$apply()
+            //$scope.MoveCursor()
+    
+    });
+    $scope.Cursor = 0
+    
+
+    var ItemFromCursor = function() {
+        var f = angular.element('#r'+$scope.Cursor),
+        name = f.attr("_name")
+        return $scope.iFiles[name]
     }
 
     

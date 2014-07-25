@@ -1,3 +1,19 @@
+v 096
+---
+
+- Initial keyboard support...
+  . Navigate list with <j><k>
+  . Opoen dirs with <o>
+  . Open finder with <s>
+  . Go home/root with <h>
+  . <x> will select an element
+  . <d> will delete selected elements
+  . Edit file with <e>
+  When editing a file...
+    <Ctrl+s> will save the file
+    <Esc>Will leave editor mode
+
+
 v 095
 --
 - assets files, neede by client app, served with gzip
