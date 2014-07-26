@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/jordic/file_server/cmdwebstream"
 	"log"
 	"net/http"
+	"os/exec"
+	"strings"
 )
 
 type WebCommand struct {
@@ -28,15 +31,23 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*if wc.Command == "syscmd" && disable_sys_command == true {
+	if wc.Command == "syscmd" && disable_sys_command == true {
 		http.NotFound(w, r)
 		log.Printf("commands explicity disabled by commandline %s", wc.Command)
 		return
-	}*/
+	}
 
 	if wc.Command == "syscmd" {
-		HandlerStreamCommand(w, wc)
+		//HandlerStreamCommand(w, wc)
+		path := strings.TrimRight(dir, "/") + "/"
+		source := strings.Trim(wc.Params["source"], "/")
+		args := wc.ParamsList
+
+		cmd := exec.Command(wc.Params["command"], args...)
+		cmd.Dir = path + source
+		cmdwebstream.Handler(w, r, cmd)
 		return
+
 	}
 
 	cmd := GetCommand(wc.Command, dir)
@@ -70,6 +81,7 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("command executed %s", wc.Command)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
+
 	return
 }
 

@@ -2,17 +2,14 @@ package main
 
 import (
 	//"errors"
-	"io"
 	"io/ioutil"
 	//	"log"
 	"os"
 	"os/exec"
 	//"strconv"
 	//"bytes"
-	"bufio"
 	"fmt"
 	"github.com/opesun/copyrecur"
-	"net/http"
 	"path/filepath"
 	"strings"
 )
@@ -220,7 +217,7 @@ func sys_command(c *Command) int {
 	return 0
 }
 
-type flushWriter struct {
+/*type flushWriter struct {
 	f http.Flusher
 	w io.Writer
 }
@@ -258,12 +255,13 @@ func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
 		fmt.Println(err)
 	}*/
 
-	//cmd.Stdout = &fw
-	//cmd.Stderr = &fw
-	cmd.Start()
+//cmd.Stdout = &fw
+//cmd.Stderr = &fw
+/*	cmd.Start()
 	bufin := bufio.NewReader(stdout)
 
 	go func() {
+		i := 1
 		for {
 			b := make([]byte, 8)
 			_, err := bufin.Read(b)
@@ -271,8 +269,9 @@ func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
 				//fmt.Print()
 				break
 			}
-			//fmt.Print(string(b))
 			fw.Write(b)
+			i++
+			//fmt.Printf("looping %d", i)
 		}
 	}()
 	//go func() {
@@ -285,6 +284,7 @@ func HandlerStreamCommand(w http.ResponseWriter, wc *WebCommand) {
 	}
 	return
 }
+*/
 
 var compressCommand = &Command{
 	Name: "Compress Tar/gz",

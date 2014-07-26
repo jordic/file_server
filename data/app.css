@@ -1,4 +1,7 @@
-body { font-family:Arial; font-size:12px }
+body { font-family:"Lucida Grande", Arial; font-size:12px }
+
+    
+
     .list .glyphicon { margin-right:5px; color:grey; font-size:12px }
     .list .glyphicon-folder-open { color:#2a8dc4; }
     #title { color:#2a8dc4; font-size:16px; }
@@ -50,6 +53,7 @@ body { font-family:Arial; font-size:12px }
     .list { margin-top:15px; }
     .table tr>td.actions { width:40px; }
     .table > thead > tr > td { padding:4px; }
+    .ModTime { font-size:10px; }
 
     #finder button, #finder input  { background-color:#DFF0F5; 
         border-color:#DFF0F5; color:#000; }

@@ -379,7 +379,7 @@ fMgr.controller("ListCtr", function($scope, $http, $location,
 
     // Key bindings
     $('#finder input').bind('blur', function(e){
-        console.log('bluf finder')
+        //console.log('bluf finder')
         angular.element('body').trigger('click')
     })
 
@@ -482,23 +482,16 @@ fMgr.controller("ExecCtrl", function($scope, $http, $location, Path,
             })*/
 
             var t = $interval(function(){
-                //$scope.output = result
-                $scope.$apply()
-            }, 1500)
+                $scope.output = result
+                //$scope.$apply()
+            }, 500)
 
             var result
             var c = new XMLHttpRequest()
             c.onreadystatechange = function() {
                 if (this.readyState > 2) 
                 {
-                    
-                    
-                    $scope.output = this.responseText;    
-                    
-                    
-                    //$scope.$apply()
-                    //console.log('data received')
-                    //alert(response);
+                    result = this.responseText;    
                 }
                 if( this.readyState == 4 ) {
                     $interval.cancel(t)
