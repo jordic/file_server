@@ -45,7 +45,13 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 		cmd := exec.Command(wc.Params["command"], args...)
 		cmd.Dir = path + source
-		cmdwebstream.Handler(w, r, cmd)
+
+		cw := &cmdwebstream.Cmd{
+			Command: cmd,
+		}
+
+		cw.ServeHTTP(w, r)
+		//cmdwebstream.Handler(w, r, cmd)
 		return
 
 	}
@@ -84,19 +90,3 @@ func WebCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
-/*
-
-[
-	{command:"git pull", exec:"git pull origin master", params:}
-	{command:"git commit", exec:"git commit -am", params: 'message' }
-	{command:"supervisor", exec:"restart xxx", params: 'message' }
-	{command:"service", exec:"xxx restart", params: 'message' }
-
-]
-
-
-
-*/
-
-/*func LoadExternalCommandFile() {}*/

@@ -7,20 +7,15 @@ import (
 	"os/exec"
 )
 
-type flushWriter struct {
-	f http.Flusher
-	w io.Writer
+// Cmd starts a system command, redirecting, stdout and stdin
+// the the browser request..
+// Its possible to implement a tail -f... but i don't know when a browser
+// will kill a request..
+type Cmd struct {
+	Command *exec.Cmd
 }
 
-func (fw *flushWriter) Write(p []byte) (n int, err error) {
-	n, err = fw.w.Write(p)
-	if fw.f != nil {
-		fw.f.Flush()
-	}
-	return
-}
-
-func Handler(w http.ResponseWriter, r *http.Request, cmd *exec.Cmd) {
+func (self *Cmd) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 
@@ -29,12 +24,12 @@ func Handler(w http.ResponseWriter, r *http.Request, cmd *exec.Cmd) {
 		fw.f = f
 	}
 
-	stdout, err := cmd.StdoutPipe()
+	stdout, err := self.Command.StdoutPipe()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	stderr, err := cmd.StderrPipe()
+	stderr, err := self.Command.StderrPipe()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,7 +38,7 @@ func Handler(w http.ResponseWriter, r *http.Request, cmd *exec.Cmd) {
 	bfin := bufio.NewReader(stdout)
 	bfer := bufio.NewReader(stderr)
 
-	cmd.Start()
+	self.Command.Start()
 	gr := func(buf io.Reader) {
 		for {
 			b := make([]byte, 8)
@@ -58,8 +53,23 @@ func Handler(w http.ResponseWriter, r *http.Request, cmd *exec.Cmd) {
 	go gr(bfin)
 	go gr(bfer)
 
-	if err := cmd.Wait(); err != nil {
+	if err := self.Command.Wait(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+}
+
+// Implementing flsuh writer, because we want a stream output...
+// flushed every write.
+type flushWriter struct {
+	f http.Flusher
+	w io.Writer
+}
+
+func (fw *flushWriter) Write(p []byte) (n int, err error) {
+	n, err = fw.w.Write(p)
+	if fw.f != nil {
+		fw.f.Flush()
+	}
+	return
 }

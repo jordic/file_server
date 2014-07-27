@@ -21,12 +21,12 @@ var (
 	logging             bool
 	depth               int
 	auth                string
-	commandsFile        string
 	debug               bool
 	disable_sys_command bool
 )
 
 //var cpuprof string
+//commandsFile        string
 
 const MAX_MEMORY = 1 * 1024 * 1024
 const VERSION = "0.96b"
@@ -44,7 +44,7 @@ func main() {
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
 	flag.IntVar(&depth, "depth", 5, "Depth directory crawler")
-	flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
+	//flag.StringVar(&commandsFile, "commands", "", "Path to external commands file.json")
 	flag.BoolVar(&debug, "debug", false, "Make external assets expire every request")
 	flag.BoolVar(&disable_sys_command, "disable_cmd", true, "Disable sys comands")
 
