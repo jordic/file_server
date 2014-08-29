@@ -1,4 +1,4 @@
-### Portable filebrowser with mobile ui html5
+### Portable filebrowser with html5 mobile ui 
 
 #### Features
 - Mobile UI with almost all "usable displays", android and ios ( on ios, can't upload files)
@@ -17,6 +17,8 @@
     + GET /dir &format=json
 - Download dirs as zip    
 - File and video stream.
+- Basic http auth as param
+- Exec system commands ( enable with param )
 
 
 ![screenshot](builds/screenshot.gif)
@@ -52,13 +54,13 @@ go build or go install
     The commands must be, system commands, and should be configured, 
     on json. App, only loads them, and handles execution of them
 - Create docs
-- UI. Add a Generic command with output ( Perhaps a modal )
++ ~~UI. Add a Generic command with output ( Perhaps a modal )~~
 - UI. Improve javascript prompt, with some kind of widget
 - UI. Add a button on toolbar, with shortcuts to system commands
 - UI/Backend. Add a bookmark system. Perhaps a file .bookmark.js on root.
 
 - Back. Add param for CORS handling
-- Back. Add some kind of authentification
++ ~~Back. Add some kind of authentification~~
 - Back. Add some kind of permisions...
 - Back. Review log system.
 
