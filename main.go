@@ -29,7 +29,7 @@ var (
 //commandsFile        string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.96b"
+const VERSION = "0.96c"
 
 func main() {
 
