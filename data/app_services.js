@@ -195,8 +195,13 @@ tempoModule.directive('inlineEdit', function($log, $location, $position,
 
         $scope.Show = function(e) {
 
-            if( window.is_mob() ) 
+            if( window.is_mob() ) {
+                if($scope.item.IsDir)
+                    $location.path( $scope.Path + $scope.item.Name + "/" )
                 return
+            }
+
+            
 
             if(e.target.nodeName != "TD") {
                 e.stopPropagation()
