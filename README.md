@@ -33,7 +33,7 @@ Donwload a binary build: (Stable)
 
 Or compile it:
 ```go
-go get github.com/jordic/fileserver
+go get github.com/jordic/file_server
 
 go build or go install
 ```
