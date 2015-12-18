@@ -1,4 +1,35 @@
-### Portable filebrowser with html5 mobile ui 
+### Portable filebrowser with html5 mobile ui. 
+
+
+
+**TL;DR**
+
+Portable file server throught http. Uses:
+
+- Share videos/audios on your local network.
+- Expose docker volumes to http. 
+- Share private server folders online
+
+Run with docker:
+
+```
+docker run --rm -v /home/jordi:/tmp -p 8080:8080 jordic/file_server:1.0
+```
+
+without docker:
+
+```
+wget https://github.com/jordic/file_server/blob/master/builds/file_server_linux_amd64?raw=true
+chmod +x file_server_linux_amd64
+./file_server_linux_amd64 -dir $HOME  
+
+```
+The docker image, can receive env variables:
+
+FILESERVER_AUTH = username:password for handling basic auth
+FILESERVER_COMMAND = allow running shell commands from the UI
+FILESERVER_DIR = dir to expose
+FILESERVER_PORT = port for the service
 
 #### Features
 - Mobile UI with almost all "usable displays", android and ios ( on ios, can't upload files)
@@ -6,7 +37,7 @@
 - Directory fuzzy search / Acces ( style textmate command+T)
 - Inline search ( current list )
 - Upload mutliple files.
-- Big uploads. Tested with 1G files. ( Uploads are streamed to disk )
+- Big uploads. Tested with 5G files. ( Uploads are streamed to disk )
 - File delete / remove / copy / compress
 - Dir creation
 - File editor with Codemirror ( javascript, html, css, php.. )
@@ -28,7 +59,6 @@
 
 Donwload a binary build: (Stable)
 
-- [Osx 64bits](builds/file_server_darwin_amd64)
 - [Linux 64bits](builds/file_server_linux_amd64)
 
 Or compile it:
@@ -67,6 +97,12 @@ go build or go install
 
 
 ##### Changelog
+
+###### v1.0
++ Updated go-bindata
++ Added Dockerfile
++ Added env variables for handling docker config
++ Updated docs
 
 ###### v0.9
 + Big refactor using Angular for frontend and api calls for actions

@@ -30,7 +30,7 @@ var (
 //commandsFile        string
 
 const MAX_MEMORY = 1 * 1024 * 1024
-const VERSION = "0.96c"
+const VERSION = "1.0"
 
 func main() {
 
@@ -40,7 +40,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	flag.StringVar(&dir, "dir", ".", "Specify a directory to server files from.")
+	flag.StringVar(&dir, "dir", "/tmp", "Specify a directory to server files from.")
 	flag.StringVar(&port, "port", ":8080", "Port to bind the file server")
 	flag.BoolVar(&logging, "log", true, "Enable Log (true/false)")
 	flag.StringVar(&auth, "auth", "", "'username:pass' Basic Auth")
@@ -50,8 +50,24 @@ func main() {
 	flag.BoolVar(&disable_sys_command, "disable_cmd", true, "Disable sys comands")
 
 	//flag.StringVar(&cpuprof, "cpuprof", "", "write cpu and mem profile")
-
 	flag.Parse()
+
+	envDir := os.Getenv("FILESERVER_DIR")
+	if envDir != "" {
+		dir = envDir
+	}
+	envPort := os.Getenv("FILESERVER_PORT")
+	if envPort != "" {
+		port = envPort
+	}
+	envAuth := os.Getenv("FILESERVER_AUTH")
+	if envAuth != "" {
+		auth = envAuth
+	}
+	envCmd := os.Getenv("FILESERVER_COMMAND")
+	if envCmd != "" {
+		disable_sys_command = false
+	}
 
 	if logging == false {
 		log.SetOutput(ioutil.Discard)
