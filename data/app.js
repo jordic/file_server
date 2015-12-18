@@ -1,12 +1,5 @@
 
-
-
-
 var ToView;
-
-
-
-
 
 fMgr.controller("ListCtr", function($scope, $http, $location, 
         $document, $window, $timeout, ServerCommand, Flash, 

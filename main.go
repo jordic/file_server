@@ -23,6 +23,7 @@ var (
 	auth                string
 	debug               bool
 	disable_sys_command bool
+	rootDir             = "."
 )
 
 //var cpuprof string
