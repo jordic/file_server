@@ -27,8 +27,11 @@ chmod +x file_server_linux_amd64
 The docker image, can receive env variables:
 
 FILESERVER_AUTH = username:password for handling basic auth
+
 FILESERVER_COMMAND = allow running shell commands from the UI
+
 FILESERVER_DIR = dir to expose
+
 FILESERVER_PORT = port for the service
 
 #### Features
