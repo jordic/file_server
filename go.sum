@@ -1,0 +1,6 @@
+github.com/jordic/fuzzyfs v0.0.0-20140715132203-58713ed4a036 h1:KQR845iPCINlqTEceTtTYbRgvmvkQ+svmsdlZa1g54o=
+github.com/jordic/fuzzyfs v0.0.0-20140715132203-58713ed4a036/go.mod h1:HBfUcrqyLMO0wxvtQ6rbT2a3Hq/zN3XASh4B03zBGkI=
+github.com/opesun/copyrecur v0.0.0-20160628173408-c927f40d0726 h1:TZzWOszfbAd74NkI3v4PDIqgVWZmO91qGFlawsFuxPU=
+github.com/opesun/copyrecur v0.0.0-20160628173408-c927f40d0726/go.mod h1:cxDxAbV99dnJNAs2U6hvsmDaFZe1MTJmg51F5PCnd0M=
+github.com/sajari/fuzzy v1.0.0 h1:+FmwVvJErsd0d0hAPlj4CxqxUtQY/fOoY0DwX4ykpRY=
+github.com/sajari/fuzzy v1.0.0/go.mod h1:OjYR6KxoWOe9+dOlXeiCJd4dIbED4Oo8wpS89o0pwOo=

@@ -24,3 +24,4 @@ _testmain.go
 build/*
 
 .DS_Store
+file_server
